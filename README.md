@@ -1,6 +1,7 @@
 <div align="center">
-  
-![km3kubedoor](https://github.com/user-attachments/assets/6e9d6e4d-bdfa-4cb8-8f30-98fc36d19cae)
+
+<img src="https://github.com/user-attachments/assets/6e9d6e4d-bdfa-4cb8-8f30-98fc36d19cae" width="45;" alt="kubedoor"/>
+
 </div>
 
 # KubeDoor
