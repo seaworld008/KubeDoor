@@ -7,5 +7,9 @@
 花开堪折直须折🌻莫待无花空折枝
 
 ### 开思开源第一弹：**基于AI推荐+专家经验的K8S负载感知调度与容量管控系统**
-![图片](https://github.com/user-attachments/assets/f04bb2e9-4603-4639-bc21-7e90dffc1282)
+- 整体架构图
+![图片](https://github.com/user-attachments/assets/59b7d650-1bf0-4019-bc0b-5613e449b525)
+- K8S准入控制逻辑
+![图片](https://github.com/user-attachments/assets/2052e559-113a-4c32-8abc-b1d1508f70a8)
+
 </div>
