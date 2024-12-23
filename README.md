@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://github.com/user-attachments/assets/6e9d6e4d-bdfa-4cb8-8f30-98fc36d19cae" width="45;" alt="kubedoor"/>
+<img src="https://github.com/user-attachments/assets/3dc6a022-cacf-4b89-9e26-24909102552c" width="80;" alt="kubedoor"/>
 
 # 花折 - KubeDoor
 
