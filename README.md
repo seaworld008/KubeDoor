@@ -189,9 +189,30 @@ helm install kubedoor ./kubedoor
 
 ### 🙇贡献者
 <div align="center">
-<a href="https://github.com/CassInfra/KubeDoor/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=CassInfra/KubeDoor" />
-</a>
+<table>
+<tr>
+    <td align="center">
+        <a href="https://github.com/starsliao">
+            <img src="https://avatars.githubusercontent.com/u/3349611?v=4" width="100;" alt="StarsL.cn"/>
+            <br />
+            <sub><b>StarsL.cn</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/shidousanxia">
+            <img src="https://avatars.githubusercontent.com/u/61586033?v=4" width="100;" alt="shidousanxia"/>
+            <br />
+            <sub><b>shidousanxia</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/xiaofennie">
+            <img src="https://avatars.githubusercontent.com/u/47970207?v=4" width="100;" alt="xiaofennie"/>
+            <br />
+            <sub><b>xiaofennie</b></sub>
+        </a>
+    </td></tr>
+</table>
 </div>
 
 ### ⭐STAR
