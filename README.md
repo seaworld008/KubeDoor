@@ -29,6 +29,10 @@
 * [🌰管控例子](#管控例子)
 * [🚩管控原则](#管控原则)
 * [🎯线路图](#线路图)
+* [🙇贡献者](#贡献者)
+* [⭐STAR](#STAR)
+* [🥰鸣谢](#鸣谢)
+* 
 ---
 
 ### 🌈概述
@@ -189,7 +193,7 @@ helm install kubedoor ./kubedoor
 
 </div>
 
-### 🥰感谢
+### 🥰鸣谢
 
 感谢如下优秀的项目，没有这些项目，不可能会有**KubeDoor**：
 
@@ -200,7 +204,8 @@ helm install kubedoor ./kubedoor
 
 - 前端技术栈
   - [Vue](https://vuejs.org/)
-  - [Element Plus](https://github.com/ElemeFE/element)
-  - [vue-pure-admin](https://github.com/pure-admin/vue-pure-admin)
+  - [Element Plus](https://element-plus.org)
+  - [pure-admin](https://pure-admin.cn/)
+
 - **另外感谢**
   - [CassTime](https://www.casstime.com)：**KubeDoor**的诞生离不开🦄**开思**的支持。
