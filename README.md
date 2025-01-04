@@ -29,6 +29,7 @@
 * [🌰管控例子](#管控例子)
 * [🚩管控原则](#管控原则)
 * [🎯线路图](#线路图)
+* [🔔KubeDoor交流群](#KubeDoor交流群与赞赏)
 * [🙇贡献者](#贡献者)
 * [⭐STAR](#STAR)
 * [🥰鸣谢](#鸣谢)
@@ -188,9 +189,30 @@ helm install kubedoor ./kubedoor
 
 ### 🙇贡献者
 <div align="center">
-<a href="https://github.com/CassInfra/KubeDoor/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=CassInfra/KubeDoor" />
-</a>
+<table>
+<tr>
+    <td align="center">
+        <a href="https://github.com/starsliao">
+            <img src="https://avatars.githubusercontent.com/u/3349611?v=4" width="100;" alt="StarsL.cn"/>
+            <br />
+            <sub><b>StarsL.cn</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/shidousanxia">
+            <img src="https://avatars.githubusercontent.com/u/61586033?v=4" width="100;" alt="shidousanxia"/>
+            <br />
+            <sub><b>shidousanxia</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/xiaofennie">
+            <img src="https://avatars.githubusercontent.com/u/47970207?v=4" width="100;" alt="xiaofennie"/>
+            <br />
+            <sub><b>xiaofennie</b></sub>
+        </a>
+    </td></tr>
+</table>
 </div>
 
 ### ⭐STAR
@@ -215,5 +237,5 @@ helm install kubedoor ./kubedoor
   - [Element Plus](https://element-plus.org)
   - [pure-admin](https://pure-admin.cn/)
 
-- **另外感谢**
+- **特别鸣谢**
   - [CassTime](https://www.casstime.com)：**KubeDoor**的诞生离不开🦄**开思**的支持。
