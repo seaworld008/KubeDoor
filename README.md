@@ -237,5 +237,5 @@ helm install kubedoor ./kubedoor
   - [Element Plus](https://element-plus.org)
   - [pure-admin](https://pure-admin.cn/)
 
-- **另外感谢**
+- **特别鸣谢**
   - [CassTime](https://www.casstime.com)：**KubeDoor**的诞生离不开🦄**开思**的支持。
