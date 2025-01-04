@@ -83,7 +83,11 @@
 **K8S准入控制逻辑**
 ![图片](https://github.com/user-attachments/assets/2052e559-113a-4c32-8abc-b1d1508f70a8)
 
+#### 如果觉得项目不错，麻烦动动小手点个⭐️Star⭐️ 如果你还有其他想法或者需求，欢迎在 issue 中交流
+
 </div>
+
+---
 
 ### 🚀部署说明
 #### 0. 需要已有 Prometheus监控K8S
@@ -135,7 +139,9 @@ helm install kubedoor ./kubedoor
 
 - 点击`配置中心`，输入需要采集的历史数据时长，点击更新，即可采集历史数据并更新高峰时段数据到管控表。
 
-- 点击管控状态的滑块，显示`管控已启用`，表示已开启。
+- 点击`管控状态`的开关，显示`管控已启用`，表示已开启。
+
+---
 
 ### ⛔注意事项
 
@@ -177,6 +183,8 @@ helm install kubedoor ./kubedoor
 - 🏅根据K8S节点资源使用率做节点管控与调度分析
 - 🚩采集更多的微服务资源信息: QPS/JVM/GC
 - 🚩针对微服务Pod做精细化操作：隔离、dump、jstack、jfr、jvm、删除
+
+### 🔔KubeDoor交流群与🧧赞赏
 
 ### 🙇贡献者
 <div align="center">
