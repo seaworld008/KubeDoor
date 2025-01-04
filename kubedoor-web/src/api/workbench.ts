@@ -6,7 +6,12 @@ type Result = {
 };
 
 export const initByDays = (days: number) => {
-  return http.request<Result>("post", "/api/table", { params: { days } });
+  return http.request<Result>(
+    "post",
+    "/api/table",
+    { params: { days } },
+    { timeout: 120000 }
+  );
 };
 
 export const whSwitch = (action: string) => {
