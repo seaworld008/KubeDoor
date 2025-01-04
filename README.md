@@ -33,7 +33,7 @@
 * [🙇贡献者](#贡献者)
 * [⭐STAR](#STAR)
 * [🥰鸣谢](#鸣谢)
-* 
+
 ---
 
 ### 🌈概述
@@ -70,7 +70,7 @@
   - ⏱️支持**即时、定时、周期性**任务执行微服务的**扩缩容和重启**操作。 
   - 🔒基于NGINX basic**认证**，支持LDAP，支持所有**操作审计**日志与通知。 
 <div align="center">
-<img src="https://github.com/user-attachments/assets/03f91c23-43e6-4df1-b874-ea3e49d7d04e"  width="900;" alt="kubedoor5"/>
+<img src="https://github.com/user-attachments/assets/ab56c089-b0de-4c23-9469-2d780cb81fdf"  width="900;" alt="kubedoor5"/>
 </div>
 
 #### 🚧当微服务更新部署时，基于K8S准入控制机制对资源进行管控【默认不开启】：
