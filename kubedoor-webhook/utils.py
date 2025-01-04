@@ -1,7 +1,11 @@
 import os
+import sys
 import json
 import requests
 from clickhouse_driver import Client
+from loguru import logger
+logger.remove()
+logger.add(sys.stderr,format='<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> [<level>{level}</level>] <level>{message}</level>',level='INFO')
 
 # 环境变量
 CK_DATABASE = os.environ.get('CK_DATABASE')
@@ -29,10 +33,55 @@ ckclient = Client(
     database=CK_DATABASE,
 )
 
-def send_wecom(content):
-    webhook = f'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={MSG_TOKEN}'
+
+def send_msg(content):
+    response = ""
+    if MSG_TYPE  == "wecom":
+        response = wecom(MSG_TOKEN, content)
+    if MSG_TYPE  == "dingding":
+        response = wecom(MSG_TOKEN, content)
+    if MSG_TYPE  == "feishu":
+        response = wecom(MSG_TOKEN, content)
+    return f'【{MSG_TYPE}】{response}'
+
+
+def wecom(webhook, content, at=""):
+    webhook = 'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=' + webhook
     headers = {'Content-Type': 'application/json'}
-    params = {'msgtype': 'markdown', 'markdown': {'content': content}}
+    params = {'msgtype': 'markdown', 'markdown': {'content': f"{content}<@{at}>"}}
     data = bytes(json.dumps(params), 'utf-8')
     response = requests.post(webhook, headers=headers, data=data)
-    return f'【wecom】{response.json()}'
+    logger.info(f'【wecom】{response.json()}')
+    return response.json()
+
+
+def dingding(webhook, content, at=""):
+    webhook = 'https://oapi.dingtalk.com/robot/send?access_token=' + webhook
+    headers = {'Content-Type': 'application/json'}
+    params = {"msgtype": "markdown", "markdown": {"title": "告警", "text": content}, "at": {"atMobiles": [at]}}
+    data = bytes(json.dumps(params), 'utf-8')
+    response = requests.post(webhook, headers=headers, data=data)
+    logger.info(f'【dingding】{response.json()}')
+    return response.json()
+
+
+def feishu(webhook, content, at=""):
+    title = "告警通知"
+    webhook = f'https://open.feishu.cn/open-apis/bot/v2/hook/{webhook}'
+    headers = {'Content-Type': 'application/json'}
+    params = {
+        "msg_type": "interactive",
+        "card": {
+            "header": {"title": {"tag": "plain_text", "content": title}, "template": "red"},
+            "elements": [
+                {
+                    "tag": "markdown",
+                    "content": f"{content}\n<at id={at}></at>",
+                }
+            ],
+        },
+    }
+    data = json.dumps(params)
+    response = requests.post(webhook, headers=headers, data=data)
+    logger.info(f'【feishu】{response.json()}')
+    return response.json()

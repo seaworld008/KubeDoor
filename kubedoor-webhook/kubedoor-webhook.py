@@ -89,19 +89,19 @@ def update_all(
     if request_cpu_m > 0:
         resources_dict["requests"]["cpu"] = f"{request_cpu_m}m"
     else:
-        utils.send_wecom(f"webhook:【prod】【{namespace}】服务【{deployment_name}】未配置request_cpu_m")
+        utils.send_msg(f"webhook:【prod】【{namespace}】服务【{deployment_name}】未配置request_cpu_m")
     if request_mem_mb > 0:
         resources_dict["requests"]["memory"] = f"{request_mem_mb}Mi"
     else:
-        utils.send_wecom(f"webhook:【prod】【{namespace}】服务【{deployment_name}】未配置request_mem_mb")
+        utils.send_msg(f"webhook:【prod】【{namespace}】服务【{deployment_name}】未配置request_mem_mb")
     if limit_cpu_m > 0:
         resources_dict["limits"]["cpu"] = f"{limit_cpu_m}m"
     else:
-        utils.send_wecom(f"webhook:【prod】【{namespace}】服务【{deployment_name}】未配置limit_cpu_m")
+        utils.send_msg(f"webhook:【prod】【{namespace}】服务【{deployment_name}】未配置limit_cpu_m")
     if limit_mem_mb > 0:
         resources_dict["limits"]["memory"] = f"{limit_mem_mb}Mi"
     else:
-        utils.send_wecom(f"webhook:【prod】【{namespace}】服务【{deployment_name}】未配置limit_mem_mb")
+        utils.send_msg(f"webhook:【prod】【{namespace}】服务【{deployment_name}】未配置limit_mem_mb")
     logger.info(f"改后：{resources_dict}")
     resources = {"op": "add", "path": "/spec/template/spec/containers/0/resources", "value": resources_dict}
     code = base64.b64encode(json.dumps([patch_replicas, resources]).encode()).decode()
@@ -144,7 +144,7 @@ def mutate():
     except Exception as e:
         content = f"webhook:【prod】【{namespace}】服务【{deployment_name}】查询数据库失败：{e}"
         logger.error(content)
-        utils.send_wecom(content)
+        utils.send_msg(content)
         return connect_fail(uid)
 
     pod_count, pod_count_ai, pod_count_manual, request_cpu_m, request_mem_mb, limit_cpu_m, limit_mem_mb = (
@@ -176,7 +176,7 @@ def mutate():
             # 服务未在表中的，部署失败
             content = f"webhook:【prod】【{namespace}】服务【{deployment_name}】部署失败:服务不在表里"
             logger.info(content, flush=True)
-            utils.send_wecom(content)
+            utils.send_msg(content)
             return jsonify(
                 {
                     "apiVersion": "admission.k8s.io/v1",
@@ -230,13 +230,13 @@ def mutate():
         else:
             content = f"webhook:【prod】【{namespace}】服务【{deployment_name}】不符合预设情况，未做任何处理"
             logger.info(content, flush=True)
-            utils.send_wecom(content)
+            utils.send_msg(content)
             return pass_webhook(uid)
     except Exception as e:
         logger.error(f"【{namespace}】服务【{deployment_name}】Webhook 处理错误：")
         logger.exception(e)
         content = f"webhook:【prod】【{namespace}】服务【{deployment_name}】处理错误：{e}"
-        utils.send_wecom(content)
+        utils.send_msg(content)
 
 
 if __name__ == '__main__':
