@@ -151,9 +151,9 @@ helm install kubedoor ./kubedoor
 
 ### 🌰管控例子
 
-- 你通过Kubectl对一个Deployment执行了扩容10个Pod后，会触发拦截机制，到数据库中去查询该微服务的Pod，然后使用该值来进行实际的扩缩容。（正确的做法应该是在KubeDoor-Web来执行扩缩容操作。）
+- 你通过Kubectl对一个Deployment执行了扩容10个Pod后，**会触发拦截机制**，到数据库中去查询该微服务的Pod，然后使用该值来进行实际的扩缩容。（正确的做法应该是在KubeDoor-Web来执行扩缩容操作。）
 
-- 你通过某发布系统修改了Deployment的镜像版本，执行发布操作，会触发拦截机制，到数据库中去查询该微服务的Pod数，需求值，限制值，然后使用这些值值以及新的镜像来进行实际的更新操作。
+- 你通过某发布系统修改了Deployment的镜像版本，执行发布操作，**会触发拦截机制**，到数据库中去查询该微服务的Pod数，需求值，限制值，然后使用这些值值以及新的镜像来进行实际的更新操作。
 
 ### 🚩管控原则
 
@@ -174,4 +174,33 @@ helm install kubedoor ./kubedoor
 - 🚩采集更多的微服务资源信息: QPS/JVM/GC
 - 🚩针对微服务Pod做精细化操作：隔离、dump、jstack、jfr、jvm、删除
 
+### 🙇贡献者
+<div align="center">
+<a href="https://github.com/CassInfra/KubeDoor/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=CassInfra/KubeDoor" />
+</a>
+</div>
 
+### ⭐STAR
+
+<div align="center">
+
+[![Star History Chart](https://api.star-history.com/svg?repos=CassInfra/KubeDoor&type=Date)](https://github.com/CassInfra/KubeDoor)
+
+</div>
+
+### 🥰感谢
+
+感谢如下优秀的项目，没有这些项目，不可能会有**KubeDoor**：
+
+- 后端技术栈
+  - [Flask](https://flask.palletsprojects.com)
+  - [Grafana](https://grafana.com/)
+  - [Nginx](https://nginx.org/)
+
+- 前端技术栈
+  - [Vue](https://vuejs.org/)
+  - [Element Plus](https://github.com/ElemeFE/element)
+  - [vue-pure-admin](https://github.com/pure-admin/vue-pure-admin)
+- **另外感谢**
+  - [CassTime](https://www.casstime.com)：**KubeDoor**的诞生离不开🦄**开思**的支持。
