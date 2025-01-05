@@ -92,6 +92,7 @@
 
 ## 🎯2025 KubeDoor RoadMap
 
+- **[📅KubeDoor 项目进度](https://github.com/orgs/CassInfra/projects/1/views/1)**
 - 🥇多K8S支持：在统一的WebUI对多K8S做管控和资源分析展示。
 - 🥈英文版发布
 - 🥉集成K8S实时监控能力，实现一键部署，整合K8S实时资源看板，接入K8S异常AI分析能力。
