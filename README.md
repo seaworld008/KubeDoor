@@ -8,7 +8,7 @@
 [![GitHub license](https://img.shields.io/badge/license-Apache-blueviolet)](https://github.com/CassInfra/KubeDoor/blob/main/LICENSE)
 [![OSCS Status](https://www.oscs1024.com/platform/badge/CassInfra/KubeDoor.svg?size=small)](https://www.murphysec.com/dr/Zoyt5g0huRavAtItj2)
 
-<img src="https://github.com/user-attachments/assets/b8f69e6e-ca53-4720-98a4-a8b26fbf6546" width="80;" alt="kubedoor"/>
+<img src="https://github.com/user-attachments/assets/3dc6a022-cacf-4b89-9e26-24909102552c" width="80;" alt="kubedoor"/>
 
 # 花折 - KubeDoor
 
@@ -41,7 +41,7 @@
 🌼**花折 - KubeDoor** 是一个使用Python + Vue开发，基于K8S准入控制机制的微服务资源管控平台。专注微服务每日高峰时段的资源视角，实现了微服务的资源分析统计与强管控，确保微服务资源的资源申请率和真实使用率一致。
 
 ### 💠架构图
-![图片](https://github.com/user-attachments/assets/59b7d650-1bf0-4019-bc0b-5613e449b525)
+![图片](https://github.com/user-attachments/assets/b8f69e6e-ca53-4720-98a4-a8b26fbf6546)
 
 ### 💎功能描述
 
