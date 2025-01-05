@@ -24,11 +24,11 @@
 * [🌈概述](#概述)
 * [💠架构图](#架构图)
 * [💎功能描述](#功能描述)
+* [🎯2025 KubeDoor RoadMap](#2025 KubeDoor RoadMap)
 * [🚀部署说明](#部署说明)
 * [⛔注意事项](#注意事项)
 * [🌰管控例子](#管控例子)
 * [🚩管控原则](#管控原则)
-* [🎯线路图](#线路图)
 * [🔔KubeDoor交流群](#KubeDoor交流群与赞赏)
 * [🙇贡献者](#贡献者)
 * [⭐STAR](#STAR)
@@ -36,14 +36,14 @@
 
 ---
 
-### 🌈概述
+## 🌈概述
 
 🌼**花折 - KubeDoor** 是一个使用Python + Vue开发，基于K8S准入控制机制的微服务资源管控平台。专注微服务每日高峰时段的资源视角，实现了微服务的资源分析统计与强管控，确保微服务资源的资源申请率和真实使用率一致。
 
-### 💠架构图
+## 💠架构图
 ![图片](https://github.com/user-attachments/assets/b8f69e6e-ca53-4720-98a4-a8b26fbf6546)
 
-### 💎功能描述
+## 💎功能描述
 
 #### 📊采集K8S微服务每日业务高峰时段P95的CPU内存消耗，以及需求、限制值与Pod数。基于采集的数据实现了一个Grafana看板并集成到了WEB UI。
   - 🎨**基于日维度采集每日高峰时段P95的资源数据**,可以很好的观察各微服务长期的资源变化情况，即使查看1年的数据也很流畅。
@@ -90,7 +90,7 @@
 
 ---
 
-### 🎯2025 KubeDoor RoadMap
+## 🎯2025 KubeDoor RoadMap
 
 - 🥇多K8S支持：在统一的WebUI对多K8S做管控和资源分析展示。
 - 🥈英文版发布
@@ -103,7 +103,7 @@
 
 ---
 
-### 🚀部署说明
+## 🚀部署说明
 #### 0. 需要已有 Prometheus监控K8S
 需要有`cadvisor`和`kube-state-metrics`这2个JOB，才能采集到K8S的以下指标
 - `container_cpu_usage_seconds_total`
@@ -159,7 +159,7 @@ helm install kubedoor ./kubedoor
 
 ---
 
-### ⛔注意事项
+## ⛔注意事项
 
 - 部署完成后，默认不会开启管控机制，你可以按上述操作通过WebUI 来开关管控能力。特殊情况下，你也可以使用`kubectl`来开关管控功能：
 
@@ -175,13 +175,13 @@ helm install kubedoor ./kubedoor
 
 - 通过任何方式对Deployment执行扩缩容或者更新操作都会受到管控，管控的目标为Pod数，资源需求值，和资源限制值。
 
-### 🌰管控例子
+## 🌰管控例子
 
 - 你通过Kubectl对一个Deployment执行了扩容10个Pod后，**会触发拦截机制**，到数据库中去查询该微服务的Pod，然后使用该值来进行实际的扩缩容。（正确的做法应该是在KubeDoor-Web来执行扩缩容操作。）
 
 - 你通过某发布系统修改了Deployment的镜像版本，执行发布操作，**会触发拦截机制**，到数据库中去查询该微服务的Pod数，需求值，限制值，然后使用这些值值以及新的镜像来进行实际的更新操作。
 
-### 🚩管控原则
+## 🚩管控原则
 
 - **你对deployment的操作不会触发deployment重启的，也没有修改Pod数的：** 触发管控拦截后，只会按照你的操作来更新deployment（不会重启Deployment）
 
@@ -191,9 +191,9 @@ helm install kubedoor ./kubedoor
 
 ---
 
-### 🔔KubeDoor交流群与🧧赞赏
+## 🔔KubeDoor交流群与🧧赞赏
 
-### 🙇贡献者
+## 🙇贡献者
 <div align="center">
 <table>
 <tr>
@@ -221,7 +221,7 @@ helm install kubedoor ./kubedoor
 </table>
 </div>
 
-### ⭐STAR
+## ⭐STAR
 
 <div align="center">
 
@@ -229,7 +229,7 @@ helm install kubedoor ./kubedoor
 
 </div>
 
-### 🥰鸣谢
+## 🥰鸣谢
 
 感谢如下优秀的项目，没有这些项目，不可能会有**KubeDoor**：
 
