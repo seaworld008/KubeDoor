@@ -80,7 +80,7 @@
 
 
 <div align="center">
-  
+
 **K8S准入控制逻辑**
 ![图片](https://github.com/user-attachments/assets/2052e559-113a-4c32-8abc-b1d1508f70a8)
 
@@ -112,12 +112,13 @@ kubectl apply -f https://StarsL.cn/kubedoor/00.cert-manager_v1.16.2_cn.yaml
 用于存储采集的指标数据与微服务的资源信息
 
 ```bash
+# 默认使用docker compose运行，部署在/opt/clickhouse目录下。
 curl -s https://StarsL.cn/kubedoor/install-clickhouse.sh|sudo bash
-# 完成启动（启动后会自动初始化表结构）
+# 启动ClickHouse（启动后会自动初始化表结构）
 cd /opt/clickhouse && docker compose up -d
 ```
 
-如果已有ClickHouse，请逐行执行以下SQL，完成初始化表结构
+如果已有ClickHouse，请逐条执行以下SQL，完成初始化表结构
 
 ```bash
 https://StarsL.cn/kubedoor/kubedoor-init.sql
@@ -128,19 +129,20 @@ https://StarsL.cn/kubedoor/kubedoor-init.sql
 ```bash
 wget https://StarsL.cn/kubedoor/kubedoor.tgz
 tar -zxvf kubedoor.tgz
-# 编辑values.yaml文件，根据描述修改内容。
-vi kubedoor/values.yaml
-# 使用helm安装
+# 编辑values.yaml文件，请仔细阅读注释，根据描述修改配置内容。
+vim kubedoor/values.yaml
+# 使用helm安装（注意在kubedoor目录外执行。）
 helm install kubedoor ./kubedoor
 ```
 
 #### 4. 访问WebUI 并初始化数据
 
-- 使用节点IP + kubedoor-web的NodePort访问，默认账号密码都是`kubedoor`
+1. 使用K8S节点IP + kubedoor-web的NodePort访问，默认账号密码都是 **`kubedoor`**
 
-- 点击`配置中心`，输入需要采集的历史数据时长，点击更新，即可采集历史数据并更新高峰时段数据到管控表。
+2. 点击`配置中心`，输入需要采集的历史数据时长，点击`采集并更新`，即可采集历史数据并更新高峰时段数据到管控表。
+   >**默认会从Prometheus采集10天数据(建议采集1个月)，并将10天内最大资源消耗日的数据写入到管控表，如果耗时较长，请等待采集完成或缩短采集时长。重复执行`采集并更新`不会导致重复写入数据，请放心使用，每次采集后都会自动将10天内最大资源消耗日的数据写入到管控表。**
 
-- 点击`管控状态`的开关，显示`管控已启用`，表示已开启。
+3. 点击`管控状态`的开关，显示`管控已启用`，表示已开启。
 
 ---
 
