@@ -1,0 +1,39 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: kubedoor-webhook-configuration
+  labels:
+    name: kubedoor-webhook
+  annotations:
+    cert-manager.io/inject-ca-from: kubedoor/kubedoor-webhook-cert
+webhooks:
+  - name: kubedoor-webhook.kubedoor.svc
+    clientConfig:
+      service:
+        namespace: kubedoor
+        name: kubedoor-webhook
+        path: /mutate
+        port: 443
+    rules:
+      - operations:
+          - CREATE
+          - UPDATE
+        apiGroups:
+          - apps
+        apiVersions:
+          - v1
+        resources:
+          - deployments
+          - deployments/scale
+        scope: "*"
+    failurePolicy: Fail
+    matchPolicy: Equivalent
+    namespaceSelector:
+      matchExpressions:
+        - key: kubedoor-ignore
+          operator: DoesNotExist
+    sideEffects: None
+    timeoutSeconds: 10
+    admissionReviewVersions:
+      - v1
+    reinvocationPolicy: Never

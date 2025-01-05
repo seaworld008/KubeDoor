@@ -11,7 +11,7 @@ defineOptions({
   name: "Welcome"
 });
 
-const days = ref(30);
+const days = ref(10);
 
 const webhookSwitch = ref(false); // webhook switch
 
@@ -22,12 +22,21 @@ function handleInit() {
   }
   ElMessageBox.confirm(
     "<strong>" +
-      transformI18n("workbench.confirm") +
-      "</strong>" +
-      "<div>( " +
-      days.value +
-      transformI18n("workbench.days") +
-      " )</div>",
+    transformI18n("workbench.confirm") +
+    "( " +
+    days.value +
+    transformI18n("workbench.days") +
+    " )" +
+    "</strong>" +
+    "<div><strong>" +
+    transformI18n("workbench.confirm1") +
+    "</strong></div>" +
+    "<div><strong>" +
+    transformI18n("workbench.confirm2") +
+    "</strong></div>" +
+    "<div><strong>" +
+    transformI18n("workbench.confirm3") +
+    "</strong></div>",
     transformI18n("panel.purePrompt"),
     {
       dangerouslyUseHTMLString: true,
@@ -96,12 +105,8 @@ onMounted(() => {
         <el-col :xs="8" :sm="8" :md="8" :lg="6">
           <el-form>
             <el-form-item :label="transformI18n('workbench.daysLable') + ' : '">
-              <el-input
-                v-model="days"
-                width="200px"
-                type="number"
-                :placeholder="transformI18n('workbench.daysPlaceholder')"
-              />
+              <el-input v-model="days" width="200px" type="number"
+                :placeholder="transformI18n('workbench.daysPlaceholder')" />
             </el-form-item>
           </el-form>
         </el-col>
@@ -121,21 +126,12 @@ onMounted(() => {
       <el-row :gutter="10">
         <el-col :span="12">
           <el-form>
-            <el-form-item
-              :label="transformI18n('workbench.controlStatus') + ' : '"
-            >
-              <el-switch
-                v-model="webhookSwitch"
-                size="large"
-                inline-prompt
-                style="
+            <el-form-item :label="transformI18n('workbench.controlStatus') + ' : '">
+              <el-switch v-model="webhookSwitch" size="large" inline-prompt style="
                   --el-switch-on-color: #13ce66;
                   --el-switch-off-color: #ff4949;
-                "
-                :active-text="transformI18n('workbench.controlEnable')"
-                :inactive-text="transformI18n('workbench.controlDisable')"
-                @change="changeSwitch"
-              />
+                " :active-text="transformI18n('workbench.controlEnable')"
+                :inactive-text="transformI18n('workbench.controlDisable')" @change="changeSwitch" />
             </el-form-item>
           </el-form>
         </el-col>
