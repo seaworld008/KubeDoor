@@ -146,6 +146,7 @@ tar -zxvf kubedoor.tgz
 vim kubedoor/values.yaml
 # 使用helm安装（注意在kubedoor目录外执行。）
 helm install kubedoor ./kubedoor
+# 安装完成后，所有资源都会部署在kubedoor命名空间。
 ```
 
 #### 4. 访问WebUI 并初始化数据
@@ -161,7 +162,7 @@ helm install kubedoor ./kubedoor
 
 ## ⛔注意事项
 
-- 部署完成后，默认不会开启管控机制，你可以按上述操作通过WebUI 来开关管控能力。特殊情况下，你也可以使用`kubectl`来开关管控功能：
+- 部署完成后，**默认不会开启管控机制**，你可以按上述操作通过WebUI 来开关管控能力。特殊情况下，你也可以使用`kubectl`来开关管控功能：
 
     ```bash
     # 开启管控
@@ -171,9 +172,11 @@ helm install kubedoor ./kubedoor
     kubectl delete mutatingwebhookconfigurations kubedoor-webhook-configuration
     ```
 
-- 开启开启管控机制后，目前只会拦截deployment的创建，更新，扩缩容操作；管控pod数，需求值，限制值。不会控制其它操作和属性。
+- **开启管控机制后**，目前只会拦截**deployment的创建，更新，扩缩容**操作；管控**pod数，需求值，限制值**。不会控制其它操作和属性。
 
-- 通过任何方式对Deployment执行扩缩容或者更新操作都会受到管控，管控的目标为Pod数，资源需求值，和资源限制值。
+- **开启管控机制后**，通过任何方式对Deployment执行扩缩容或者更新操作都会受到管控。
+
+- **开启管控机制后**，扩缩容或者重启Deployment时，Pod数优先取`指定Pod`字段，若该字段为-1，则取`当日Pod`字段。
 
 ## 🌰管控例子
 
