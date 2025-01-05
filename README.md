@@ -31,7 +31,7 @@
 * [🚩管控原则](#管控原则)
 * [🔔KubeDoor交流群](#KubeDoor交流群与赞赏)
 * [🙇贡献者](#贡献者)
-* [⭐STAR](#STAR)
+* [⭐STAR History](#STAR-History)
 * [🥰鸣谢](#鸣谢)
 
 ---
@@ -221,7 +221,7 @@ helm install kubedoor ./kubedoor
 </table>
 </div>
 
-## ⭐STAR
+## ⭐STAR History
 
 <div align="center">
 
