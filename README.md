@@ -185,7 +185,7 @@ helm install kubedoor ./kubedoor
 - 🏅微服务AI缩容：基于每个微服务高峰期的资源信息，对接AI分析与专家经验，计算每个微服务的pod数是否合理，生成缩容信息统计与缩容指令。
 - 🏅根据K8S节点资源使用率做节点管控与调度分析
 - 🚩采集更多的微服务资源信息: QPS/JVM/GC
-- 🚩针对微服务Pod做精细化操作：隔离、dump、jstack、jfr、jvm、删除
+- 🚩针对微服务Pod做精细化操作：隔离、删除、dump、jstack、jfr、jvm
 
 ### 🔔KubeDoor交流群与🧧赞赏
 
