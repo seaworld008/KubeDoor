@@ -70,7 +70,7 @@
   - ⏱️支持**即时、定时、周期性**任务执行微服务的**扩缩容和重启**操作。 
   - 🔒基于NGINX basic**认证**，支持LDAP，支持所有**操作审计**日志与通知。
 
-![图片](https://github.com/user-attachments/assets/ab56c089-b0de-4c23-9469-2d780cb81fdf)
+![kd-web](https://github.com/user-attachments/assets/1b865cf0-c7cf-4382-ac12-d22482ffa496)
 
 #### 🚧当微服务更新部署时，基于K8S准入控制机制对资源进行管控【默认不开启】：
   - 🧮**控制每个微服务的Pod数、需求值、限制值**必须与数据库一致，以确保微服务的真实使用率和资源申请需求值相等，从而实现微服务的统一管控与Pod的负载感知调度均衡能力。
@@ -80,7 +80,8 @@
 <div align="center">
 
 **K8S准入控制逻辑**
-![图片](https://github.com/user-attachments/assets/2052e559-113a-4c32-8abc-b1d1508f70a8)
+
+![kd-k8s](https://github.com/user-attachments/assets/81532b34-568d-4028-aed5-84cc133ee42e)
 
 #### 如果觉得项目不错，麻烦动动小手点个⭐️Star⭐️ 如果你还有其他想法或者需求，欢迎在 issue 中交流
 
