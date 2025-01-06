@@ -144,7 +144,10 @@ def get_prom_data(promql, env, namespace_str, end_time_full, duration):
         metrics_dict = {}
         for x in result:
             for tv in x['values']:
-                k8s = x['metric'][PROM_K8S_TAG_KEY]
+                if PROM_K8S_TAG_KEY:
+                    k8s = x['metric'][PROM_K8S_TAG_KEY]
+                else:
+                    k8s = "k8s"
                 ns = x['metric'].get('namespace',x['metric'].get('k8s_ns')) or x['metric'].get('namespace',x['metric'].get('destination_workload_namespace'))
                 ms = x['metric'].get('deployment')
                 if promql == "pod_num":
@@ -332,6 +335,7 @@ def init_control_data(metrics_list_ck):
             )
         except ServerException as e:
             logger.exception("Failed to insert batch {}: {}", i//batch_size, e)
+            return False
 
     ckclient.disconnect()
     return True
@@ -345,24 +349,43 @@ def update_control_data(metrics_list_ck):
         sql = f"select * from kubedoor.k8s_res_control where namespace = '{namespace}' and deployment = '{deployment}'"
         data = ckclient.execute(sql)
         if data:  # 更新
-            request_cpu_m = p95_pod_load * 1000
-            try:
-                update_sql = f"""
-                    alter table kubedoor.k8s_res_control
-                    update
-                        `update` = '{date_str}',
-                        pod_count = {pod_count},
-                        p95_pod_cpu_pct = {p95_pod_cpu_pct},
-                        p95_pod_mem_pct = {p95_pod_wss_pct},
-                        request_cpu_m = {int(request_cpu_m)},
-                        request_mem_mb = {int(p95_pod_wss_mb)}
-                    where
-                        namespace = '{namespace}'
-                        and deployment = '{deployment}'
-                """
-                update_data = ckclient.execute(update_sql)
-            except Exception as e:
-                logger.exception("Failed to execute {}: {}", sql, e)
+            if data[0][0] == env:  # PROM_K8S_TAG_KEY未改变
+                request_cpu_m = p95_pod_load * 1000
+                try:
+                    update_sql = f"""
+                        alter table kubedoor.k8s_res_control
+                        update
+                            `update` = '{date_str}',
+                            pod_count = {pod_count},
+                            p95_pod_cpu_pct = {p95_pod_cpu_pct},
+                            p95_pod_mem_pct = {p95_pod_wss_pct},
+                            request_cpu_m = {int(request_cpu_m)},
+                            request_mem_mb = {int(p95_pod_wss_mb)}
+                        where
+                            namespace = '{namespace}'
+                            and deployment = '{deployment}'
+                    """
+                    update_data = ckclient.execute(update_sql)
+                except Exception as e:
+                    logger.exception("Failed to execute {}: {}", update_sql, e)
+                    ckclient.disconnect()
+                    return False
+            else:  # PROM_K8S_TAG_KEY改变了
+                try:  # 先删除
+                    ckclient.execute("SET allow_experimental_lightweight_delete = 1")
+                    del_sql = f"DELETE from k8s_res_control WHERE namespace = '{namespace}' and deployment = '{deployment}'"
+                    ckclient.execute(del_sql)
+                except Exception as e:
+                    logger.exception("Failed to execute {}: {}", del_sql, e)
+                    ckclient.disconnect()
+                    return False
+                try:  # 再重新插入数据
+                    tmp = parse_insert_data(i)
+                    ckclient.execute("INSERT INTO k8s_res_control VALUES", [tuple(tmp)], types_check=True)
+                except Exception as e:
+                    logger.exception("Failed to insert {}: {}", [tuple(tmp)], e)
+                    ckclient.disconnect()
+                    return False
         else:  # 添加
             content = f"执行更新管控表脚本，【{env}】命名空间【{namespace}】下服务【{deployment}】未配置，新增数据"
             logger.info(content)
@@ -373,5 +396,7 @@ def update_control_data(metrics_list_ck):
                 ckclient.execute("INSERT INTO k8s_res_control VALUES", [tuple(tmp)], types_check=True)
             except Exception as e:
                 logger.exception("Failed to insert {}: {}", [tuple(tmp)], e)
+                ckclient.disconnect()
+                return False
     ckclient.disconnect()
 

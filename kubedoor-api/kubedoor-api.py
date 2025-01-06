@@ -49,11 +49,7 @@ def delete_cronjob_or_not(cronjob_name, job_type):
             client.Configuration.set_default(config)
             batch_v1 = client.BatchV1Api()
             # 删除 CronJob
-            batch_v1.delete_namespaced_cron_job(
-                name=cronjob_name,
-                namespace="kubedoor",
-                body=client.V1DeleteOptions()
-            )
+            batch_v1.delete_namespaced_cron_job(name=cronjob_name, namespace="kubedoor", body=client.V1DeleteOptions())
             logger.info(f"CronJob '{cronjob_name}' deleted successfully.")
         except ApiException as e:
             logger.exception("调用AppsV1Api时出错: {}", e)
@@ -102,7 +98,8 @@ def scale():
             deployment_obj.spec.replicas = num
             # 更新 Deployment
             logger.info(
-                f"Deployment【{deployment_name}】副本数更改为 {deployment_obj.spec.replicas} ，实际变动见webhook执行情况", flush=True
+                f"Deployment【{deployment_name}】副本数更改为 {deployment_obj.spec.replicas} ，实际变动见webhook执行情况",
+                flush=True,
             )
             v1.patch_namespaced_deployment_scale(deployment_name, namespace, deployment_obj)
             # 间隔时间
@@ -133,9 +130,7 @@ def reboot():
     v1 = client.AppsV1Api()
 
     patch = {
-        "spec": {
-            "template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": datetime.now().isoformat()}}}
-        }
+        "spec": {"template": {"metadata": {"annotations": {"kubectl.kubernetes.io/restartedAt": datetime.now().isoformat()}}}}
     }
 
     error_list = list()
@@ -196,11 +191,13 @@ def table():
     if utils.is_init_or_update():
         # 初始化
         logger.info("初始化管控表=======")
-        utils.init_control_data(resources)
+        flag = utils.init_control_data(resources)
     else:
         # 更新
         logger.info("更新管控表=======")
-        utils.update_control_data(resources)
+        flag = utils.update_control_data(resources)
+    if flag == False:
+        return {"error_message": "执行失败，详情见kubedoor-api控制台日志"}, 500
     return "ok"
 
 
@@ -257,11 +254,9 @@ def cron():
                                         "Content-Type: application/json",
                                         "-d",
                                         f'{json.dumps(service)}',
-                                        f"http://kubedoor-api.ops.casstime.net/api/{type}"
+                                        f"http://kubedoor-api.kubedoor/api/{type}",
                                     ],
-                                    env=[
-                                        client.V1EnvVar(name="CRONJOB_TYPE", value=job_type)
-                                    ],
+                                    env=[client.V1EnvVar(name="CRONJOB_TYPE", value=job_type)],
                                 )
                             ],
                         ),
@@ -302,13 +297,7 @@ def update_namespace_lable(action):
     label_value = None
     if action == "add":
         label_value = 'true'
-    patch_body = {
-        "metadata": {
-            "labels": {
-                label_key: label_value
-            }
-        }
-    }
+    patch_body = {"metadata": {"labels": {label_key: label_value}}}
     try:
         # 调用 patch_namespace 方法更新命名空间的标签
         response = core_v1_api.patch_namespace(name=namespace_name, body=patch_body)
@@ -340,7 +329,7 @@ def get_mutating_webhook():
         if e.status == 404:
             logger.error(f"MutatingWebhookConfiguration '{webhook_name}' does not exist.")
             return {"is_on": False}
-        else:   
+        else:
             if e.body:
                 body = json.loads(e.body)
                 error_message = body.get("message")
@@ -364,24 +353,17 @@ def create_mutating_webhook():
     webhook_config = client.V1MutatingWebhookConfiguration(
         metadata=client.V1ObjectMeta(
             name=webhook_name,
-            labels={
-                "name": "kubedoor-webhook"
-            },
-            annotations={
-                "cert-manager.io/inject-ca-from": "kubedoor/kubedoor-webhook-cert"
-            }        
+            labels={"name": "kubedoor-webhook"},
+            annotations={"cert-manager.io/inject-ca-from": "kubedoor/kubedoor-webhook-cert"},
         ),
         webhooks=[
             client.V1MutatingWebhook(
                 name="kubedoor-webhook.kubedoor.svc",
                 client_config=client.AdmissionregistrationV1WebhookClientConfig(
                     service=client.AdmissionregistrationV1ServiceReference(
-                        namespace=namespace,
-                        name="kubedoor-webhook",
-                        path="/mutate",
-                        port=443
+                        namespace=namespace, name="kubedoor-webhook", path="/mutate", port=443
                     ),
-                    ca_bundle=None  # cert-manager 自动注入证书，ca_bundle 留空
+                    ca_bundle=None,  # cert-manager 自动注入证书，ca_bundle 留空
                 ),
                 rules=[
                     client.V1RuleWithOperations(
@@ -389,25 +371,20 @@ def create_mutating_webhook():
                         api_groups=["apps"],
                         api_versions=["v1"],
                         resources=["deployments", "deployments/scale"],
-                        scope="*"
+                        scope="*",
                     )
                 ],
                 failure_policy="Fail",
                 match_policy="Equivalent",
                 namespace_selector=client.V1LabelSelector(
-                    match_expressions=[
-                        client.V1LabelSelectorRequirement(
-                            key="kubedoor-ignore",
-                            operator="DoesNotExist"
-                        )
-                    ]
+                    match_expressions=[client.V1LabelSelectorRequirement(key="kubedoor-ignore", operator="DoesNotExist")]
                 ),
                 side_effects="None",
                 timeout_seconds=10,
                 admission_review_versions=["v1"],
-                reinvocation_policy="Never"
+                reinvocation_policy="Never",
             )
-        ]
+        ],
     )
     # 创建 MutatingWebhookConfiguration
     try:
@@ -455,7 +432,7 @@ def delete_mutating_webhook():
 def webhook_switch():
     action = request.args.get("action")
     res = get_mutating_webhook()
-    
+
     if action == "get":
         return res
     if action == "on":
@@ -470,7 +447,7 @@ def webhook_switch():
         delete_res = delete_mutating_webhook()
         if delete_res:
             return delete_res, 500
-    
+
     return "ok"
 
 
