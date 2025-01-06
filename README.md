@@ -43,7 +43,7 @@
 🌼**花折 - KubeDoor** 是一个使用Python + Vue开发，基于K8S准入控制机制的微服务资源管控平台。专注微服务每日高峰时段的资源视角，实现了微服务的资源分析统计与强管控，确保微服务资源的资源申请率和真实使用率一致。
 
 ## 💠架构图
-![图片](https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd-arch.png)
+![图片](https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kubedoor-arch.png)
 
 ## 💎功能描述
 
