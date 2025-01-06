@@ -19,6 +19,8 @@
 </div>
 
 ---
+**国内用户如果访问异常，可以访问Gitee同步站：https://gitee.com/starsl/KubeDoor**
+
 
 ## 🏷目录
 * [🌈概述](#概述)
