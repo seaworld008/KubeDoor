@@ -1,7 +1,7 @@
 image:
   repository: swr.cn-south-1.myhuaweicloud.com/starsl.cn
-  kubedoor_api_tag: 1580-590a182d
-  kubedoor_web_tag: 1567-273b7e60
+  kubedoor_api_tag: 1588-7296d1ff
+  kubedoor_web_tag: 1585-635a7495
   kubedoor_webhook_tag: 1562-d3889fb4
 
 kubedoor_web_secret:
@@ -22,12 +22,16 @@ config: # 调用外部资源的配置信息
   # 注意：Prometheus默认端口是9090，Victoria-Metrics-Single默认端口是8428，Victoria-Metrics-Cluster默认读端口是8481。
   PROM_TYPE: "Victoria-Metrics-Single" # 从Prometheus中采集数据，输入Prom数据源的类型：Prometheus, Victoria-Metrics-Single, Victoria-Metrics-Cluster
   PROM_URL: "http://ops:passwd@10.7.0.2:8428" #Prometheus的地址，http开头，端口号结尾，有认证的按例子格式填写。
-  PROM_K8S_TAG_KEY: "origin_prometheus" # 这是用于多K8S数据采集到同一个Prom数据库时，用来给各指标区分不同K8S的标签的key，如果没有请留空""。
-  PROM_K8S_TAG_VALUE: "cassmall-gamma" # 是用于多K8S数据采集到同一个Prom数据库时，用来给各指标区分不同K8S的标签的key对应的value，如果你的K8S采集到单独的Prometheus，或者没有区分K8S的标签，请key，value都留空""。
+
+  # 如下两个字段KEY/VALUE是给存储使用非Prometheus的远程存储用的，即为Prometheus设置的extenal_label的key/value。
+  # 用于多K8S监控数据写入到同一个时序数据库的场景，使用远程存储时，这种标签会增加到每一个指标中，这样通过这个标签就可以区分出这些指标属于哪个K8S了。
+  # 如果你的K8S监控数据采集到了单独的Prometheus（存储就是Prometheus本身的），或者远程存储没有使用区分K8S的标签，请把KEY/VALUE都设置为空""。
+  PROM_K8S_TAG_KEY: "origin_prometheus"
+  PROM_K8S_TAG_VALUE: "cassmall-gamma"
 
   # 这里是填写业务相关的信息
   NAMESPACE_LIST: "infra,inquiry,terminal,vip,ops-monit" # 需要采集数据和管控的命名空间列表，所有操作都关联这些命名空间。
-  PEAK_TIME: "10:00:00-11:30:00" # 根据业务实际情况设置一个每日的高峰时间段，会采集该时间段的数据，计算P95值，并更新到数据库。
+  PEAK_TIME: "10:00:00-11:30:00" # 根据业务实际情况设置一个每日的高峰时间段，会采集该时间段的数据，计算P95值，并更新到数据库；不建议设置过长的时间段，因为最终是获取P95数据，所以选择一个业务高峰时间段即可。
 
   # 这里填写通知的信息
   # 钉钉机器人安全设置的自定义关键词请设置为：告警
