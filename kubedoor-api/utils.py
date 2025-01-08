@@ -154,7 +154,7 @@ def get_prom_data(promql, env, namespace_str, end_time_full, duration):
                     metrics_dict[f'{tv[0]}@{k8s}@{ns}@{ms}'] = int(tv[1])
                 else:
                     metrics_dict[f'{tv[0]}@{k8s}@{ns}@{ms}'] = float(tv[1])
-        logger.info('count:{}',len(metrics_dict))
+        logger.info('单个指标数量 {}: {}', promql,len(metrics_dict))
         return metrics_dict
     else:
         logger.error('ERROR {} {}', promql, env)
@@ -175,7 +175,7 @@ def merged_dict(env, namespace_str, duration_str, end_time_full):
         for j in metrics_keys_list:
             if j not in i:
                 i[j] = -1
-        logger.info('=new={}',len(i))
+        logger.info('处理完成后（补全查不到的值）的数据行数: {}',len(i))
         new_metrics_list.append(i)
 
     merged_dict = defaultdict(list)
@@ -185,6 +185,8 @@ def merged_dict(env, namespace_str, duration_str, end_time_full):
     for k,v in merged_dict.items():
         key_list = k.split('@')
         key_list[0] = datetime.fromtimestamp(int(key_list[0]))
+        if v[0] == -1:  # 如果未从指标查到pod数，则置为0
+            v[0] = 0
         logger.info(key_list + v)
         k8s_metrics_list.append(key_list + v + [-1, -1, -1])
     return k8s_metrics_list
