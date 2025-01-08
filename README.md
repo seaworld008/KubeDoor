@@ -142,7 +142,7 @@ https://StarsL.cn/kubedoor/kubedoor-init.sql
 #### 3. 部署KubeDoor
 
 ```bash
-wget https://StarsL.cn/kubedoor/kubedoor.tgz
+wget https://StarsL.cn/kubedoor/kubedoor-0.2.1.tgz
 tar -zxvf kubedoor.tgz
 # 编辑values.yaml文件，请仔细阅读注释，根据描述修改配置内容。
 vim kubedoor/values.yaml
