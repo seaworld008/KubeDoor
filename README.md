@@ -199,7 +199,7 @@ helm install kubedoor ./kubedoor
 ## 🔔KubeDoor交流群与🧧赞赏
 <div align="center">
 
-<img src="https://github.com/user-attachments/assets/689a703b-c9b4-4c6c-ad9f-60cf8ca9189c" width="600;" alt="kubedoor"/>
+<img src="https://github.com/user-attachments/assets/d0eba898-368c-496f-b746-2aa8ac4c238a" width="600;" alt="kubedoor"/>
 
 </div>
 
