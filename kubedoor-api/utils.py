@@ -117,13 +117,13 @@ def check_and_delete_day_data(date):
 
 def get_prom_url():
     """按类型选择查询指标的方式"""
-    url = ""
-    if PROM_TYPE == "Prometheus":
-        url = f"{PROM_URL}/api/v1/query_range"
-    if PROM_TYPE == "Victoria-Metrics-Single":
-        url = f"{PROM_URL}/api/v1/query_range"
-    if PROM_TYPE == "Victoria-Metrics-Cluster":
-        url = f"{PROM_URL}/select/0/prometheus/api/v1/query_range"
+    url = f"{PROM_URL}/api/v1/query_range"
+    # if PROM_TYPE == "Prometheus":
+    #     url = f"{PROM_URL}/api/v1/query_range"
+    # if PROM_TYPE == "Victoria-Metrics-Single":
+    #     url = f"{PROM_URL}/api/v1/query_range"
+    # if PROM_TYPE == "Victoria-Metrics-Cluster":
+    #     url = f"{PROM_URL}/select/0/prometheus/api/v1/query_range"
     return url
 
 
