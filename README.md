@@ -62,6 +62,8 @@
 <img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert3.png" width="266;" alt="alert3.png"/>
 </div>
 
+---
+
 #### 📊采集K8S微服务每日业务高峰时段P95的CPU内存消耗，以及需求、限制值与Pod数。基于采集的数据实现了一个Grafana看板并集成到了WEB UI。
   - 🎨**基于日维度采集每日高峰时段P95的资源数据**,可以很好的观察各微服务长期的资源变化情况，即使查看1年的数据也很流畅。
   - 🏅高峰时段全局资源统计与各**资源TOP10**
