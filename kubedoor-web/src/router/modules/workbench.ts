@@ -8,7 +8,7 @@ export default {
   meta: {
     icon: "ep:setting",
     title: $t("menus.resourceWorkbench"),
-    rank: 1
+    rank: 5
   },
   children: [
     {

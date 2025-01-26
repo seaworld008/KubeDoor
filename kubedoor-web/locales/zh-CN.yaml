@@ -75,9 +75,11 @@ menus:
   pureHome: 首页
   pureLogin: 登录
   pureAbnormal: 异常页面
-  resourceManagement: 资源管控
-  resourceCollection: 归档数据
-  resourceStatistics: 分析看板
+  resourceManagement: 微服务资源管控
+  resourceCollection: 日归档数据查询
+  resourceStatistics: K8S高峰期资源看板
+  resourceMonitk8s: K8S监控看板
+  resourceMonitnode: 节点监控看板
   resourceWorkbench: 配置中心
   pureFourZeroFour: "404"
   pureFourZeroOne: "403"

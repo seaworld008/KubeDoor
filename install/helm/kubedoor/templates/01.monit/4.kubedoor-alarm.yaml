@@ -1,0 +1,74 @@
+{{- if .Values.monit.kubedoor_alarm.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubedoor-alarm
+  namespace: kubedoor
+  labels:
+    app: kubedoor-alarm
+    app.kubernetes.io/instance: kubedoor-alarm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubedoor-alarm
+  template:
+    metadata:
+      labels:
+        app: kubedoor-alarm
+    spec:
+      containers:
+        - name: kubedoor-alarm
+          image: swr.cn-south-1.myhuaweicloud.com/starsl.cn/kubedoor-alarm:latest
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: MSG_TYPE
+              value: {{ .Values.config.MSG_TYPE }}
+            - name: MSG_TOKEN
+              value: {{ .Values.config.MSG_TOKEN }}
+            - name: ALERTMANAGER_EXTURL
+              value: {{ .Values.monit.kubedoor_alarm.ALERTMANAGER_EXTURL }}
+            - name: DEFAULT_AT
+              value: {{ .Values.monit.kubedoor_alarm.DEFAULT_AT }}
+          resources:
+            limits:
+              cpu: '1'
+              memory: 1Gi
+            requests:
+              cpu: 10m
+              memory: 10Mi
+          livenessProbe:
+            tcpSocket:
+              port: 80
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            timeoutSeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          imagePullPolicy: Always
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubedoor-alarm
+  namespace: kubedoor
+  labels:
+    app: kubedoor-alarm
+    app.kubernetes.io/instance: kubedoor-alarm
+
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+  selector:
+    app: kubedoor-alarm
+{{- end }}

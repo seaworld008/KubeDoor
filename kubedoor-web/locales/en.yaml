@@ -78,6 +78,8 @@ menus:
   resourceManagement: Resource Management
   resourceCollection: Resource Collection
   resourceStatistics: Resource Statistics
+  resourceMonitk8s: Resource K8S
+  resourceMonitnode: Resource Node
   resourceWorkbench: Workbench
   pureFourZeroFour: "404"
   pureFourZeroOne: "403"

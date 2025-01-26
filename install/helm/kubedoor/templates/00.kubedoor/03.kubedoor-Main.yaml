@@ -39,10 +39,16 @@ data:
   CK_USER: {{ .Values.config.CK_USER | quote }}
   CK_PASSWORD: {{ .Values.config.CK_PASSWORD | quote }}
   CK_DATABASE: kubedoor
-  PROM_TYPE: {{ .Values.config.PROM_TYPE | quote }}
-  PROM_URL: {{ .Values.config.PROM_URL | quote }}
-  PROM_K8S_TAG_KEY: {{ .Values.config.PROM_K8S_TAG_KEY | quote }}
-  PROM_K8S_TAG_VALUE: {{ .Values.config.PROM_K8S_TAG_VALUE | quote }}
+  PROM_TYPE: {{ .Values.tsdb.type | quote }}
+  {{- if eq .Values.tsdb.type "KubeDoor" }}
+  PROM_URL: "http://{{ .Values.monit.vm_single.user }}:{{ .Values.monit.vm_single.passwd }}@victoria-metrics.kubedoor:8428"
+  {{- else if eq .Values.tsdb.type "Victoria-Metrics-Cluster" }}
+  PROM_URL: {{ .Values.tsdb.remoteRead | quote }}
+  {{- else }}
+  PROM_URL: {{ .Values.tsdb.url | quote }}
+  {{- end }}
+  PROM_K8S_TAG_KEY: {{ .Values.tsdb.external_labels_key | quote }}
+  PROM_K8S_TAG_VALUE: {{ .Values.tsdb.external_labels_value | quote }}
   NAMESPACE_LIST: {{ .Values.config.NAMESPACE_LIST | quote }}
   PEAK_TIME: {{ .Values.config.PEAK_TIME | quote }}
   MSG_TYPE: {{ .Values.config.MSG_TYPE | quote }}

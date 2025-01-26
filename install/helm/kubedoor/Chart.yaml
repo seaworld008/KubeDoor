@@ -1,7 +1,12 @@
 apiVersion: v2
-appVersion: 0.2.1
-maintainers:
-  - name: casstime
 name: kubedoor
 type: application
-version: 0.2.1
+description: "花折 - KubeDoor"
+sources:
+  - https://github.com/CassInfra/KubeDoor
+maintainers:
+  - name: StarsL.cn
+  - url: https://github.com/starsliao
+
+version: 0.3.0
+appVersion: "0.3.0"

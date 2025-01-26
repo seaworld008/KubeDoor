@@ -1,0 +1,303 @@
+{{- if and (ne .Values.tsdb.type "Prometheus") (.Values.monit.vmalert.enable) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vmalert-config
+  namespace: kubedoor
+data:
+  itself.yaml: |-
+    groups:
+    - name: Itself
+      rules:
+      - alert: 监控器状态异常
+        expr: up == 0
+        for: 3m
+        labels:
+          alertype: itself
+          severity: critical
+        annotations:
+          description: "{{`{{ $labels.job }}`}}：异常\n> {{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.instance }}`}}"
+
+  k8s.yaml: |-
+    groups:
+    - name: K8S_Pod_status
+      rules:
+      - alert: K8S_Pod异常-OOMKilled
+        expr: changes_prometheus(kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}[10m]) > 0
+        labels:
+          inhibit: K8S_Pod_status
+          severity: R4
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.namespace }}`}}\n- Pod：{{`{{ $labels.pod }}`}}\n- 异常原因：{{`{{ $labels.reason }}`}}"
+
+      - alert: K8S_Pod异常-waiting
+        expr: sum_over_time(kube_pod_container_status_waiting_reason{reason!~"ContainerCreating"}[5m]) >= 1
+        for: 10m
+        labels:
+          inhibit: K8S_Pod_status
+          severity: R2
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.namespace }}`}}\n- Pod：{{`{{ $labels.pod }}`}}\n- 异常原因：{{`{{ $labels.reason }}`}}"
+
+      - alert: K8S_Pod异常重启
+        expr: kube_pod_container_status_restarts_total > 0 and changes_prometheus(kube_pod_container_status_restarts_total[2m]) > 0
+        labels:
+          inhibit: K8S_Pod_status
+          severity: R1
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.namespace }}`}}\n- Pod：{{`{{ $labels.pod }}`}}\n- 重启次数：{{`{{ $value | printf \"%.2f\" }}`}}次"
+
+      - alert: K8S_Pod频繁重启
+        expr: kube_pod_container_status_restarts_total > 0 and changes_prometheus(kube_pod_container_status_restarts_total[15m]) >= 2
+        for: 5m
+        labels:
+          inhibit: K8S_Pod_status
+          severity: R3
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.namespace }}`}}\n- Pod：{{`{{ $labels.pod }}`}}\n- 重启次数：{{`{{ $value | printf \"%.2f\" }}`}}次"
+    - name: K8S_Pod_resource
+      rules:
+      - alert: K8S_Pod_CPU总使用率
+        expr: sum(irate(container_cpu_usage_seconds_total{container !="",container!="POD"}[2m])) by ({{ .Values.tsdb.external_labels_key }}, namespace, container, pod) / (sum(container_spec_cpu_quota{container!="",container!="POD"}/100000) by ({{ .Values.tsdb.external_labels_key }}, namespace, container, pod)) * 100 > 75
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.namespace }}`}}\n- Pod：{{`{{ $labels.pod }}`}}\n- CPU使用率为：{{`{{ $value | printf \"%.2f\" }}`}}%"
+
+      - alert: K8S_Pod_内存使用率_RSS
+        expr: sum (container_memory_rss{container!="",container!="POD"}) by ({{ .Values.tsdb.external_labels_key }}, namespace, container, pod)/ sum(container_spec_memory_limit_bytes{container!="",container!="POD"}) by ({{ .Values.tsdb.external_labels_key }}, namespace, container, pod) * 100  != +Inf > 90
+        for: 2m
+        labels:
+          severity: R2
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.namespace }}`}}\n- Pod：{{`{{ $labels.pod }}`}}\n- 内存使用率为：{{`{{ $value | printf \"%.2f\" }}`}}%"
+
+      - alert: K8S_Pod_流入带宽
+        expr: sum (irate (container_network_receive_bytes_total{image!="",name=~"^k8s_.*"}[3m])) by ({{ .Values.tsdb.external_labels_key }}, namespace, container, pod) / 1024 / 1024 > 120
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.namespace }}`}}\n- Pod：{{`{{ $labels.pod }}`}}\n- 流入带宽为：{{`{{ $value | printf \"%.2f\" }}`}}MB/s"
+
+      - alert: K8S_Pod_流出带宽
+        expr: sum (irate (container_network_transmit_bytes_total{image!="",name=~"^k8s_.*"}[3m])) by ({{ .Values.tsdb.external_labels_key }}, namespace, container, pod) / 1024 / 1024 > 120
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.namespace }}`}}\n- Pod：{{`{{ $labels.pod }}`}}\n- 流出带宽为：{{`{{ $value | printf \"%.2f\" }}`}}MB/s"
+
+    - name: K8S_Deployment
+      rules:
+      - alert: K8S_部署集副本数
+        expr: kube_deployment_spec_replicas - kube_deployment_status_replicas_available > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.namespace }}`}}\n- 部署集：{{`{{ $labels.deployment }}`}}\n- 副本数缺少：{{`{{ $value }}`}}"
+
+      - alert: K8S_部署集CPU使用率
+        expr: sum(irate(container_cpu_usage_seconds_total{container !="",container!="POD"}[2m])) by ({{ .Values.tsdb.external_labels_key }}, namespace, container) / (sum(container_spec_cpu_quota{container !="",container!="POD"}/100000) by ({{ .Values.tsdb.external_labels_key }}, namespace, container)) * 100 > 70
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.namespace }}`}}\n- 部署集：{{`{{ $labels.container }}`}}\n- CPU使用率：{{`{{ $value | printf \"%.2f\" }}`}}%"
+
+    - name: K8S_Node
+      rules:
+      - alert: K8S节点异常
+        expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.node }}`}} 状态异常"
+
+      - alert: KubernetesMemoryPressure
+        expr: kube_node_status_condition{condition="MemoryPressure",status="true"} == 1
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.node }}`}}\n- {{`{{ $labels.instance }}`}} 内存压力"
+
+      - alert: KubernetesDiskPressure
+        expr: kube_node_status_condition{condition="DiskPressure",status="true"} == 1
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.node }}`}}\n- {{`{{ $labels.instance }}`}} 磁盘压力"
+
+      - alert: KubernetesOutOfDisk
+        expr: kube_node_status_condition{condition="OutOfDisk",status="true"} == 1
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.node }}`}}\n- {{`{{ $labels.instance }}`}} 磁盘不足"
+
+  node.yaml: |-
+    groups:
+    - name: node-exporter
+      rules:
+      - alert: 内存使用率
+        expr: 100 - (node_memory_MemAvailable_bytes{} / node_memory_MemTotal_bytes{}) * 100 > 90
+        for: 2m
+        labels:
+          alertype: system
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.instance }}`}}\n- 内存使用率{{`{{ $value | printf \"%.2f\" }}`}}%"
+      - alert: CPU使用率
+        expr: 100 - (avg by({{ .Values.tsdb.external_labels_key }},instance) (irate(node_cpu_seconds_total{mode="idle"}[3m])) * 100) > 75
+        for: 2m
+        labels:
+          alertype: system
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.instance }}`}}\n- CPU使用率{{`{{ $value | printf \"%.2f\" }}`}}%"
+      - alert: 系统负载
+        expr: node_load5{} / on ({{ .Values.tsdb.external_labels_key }},instance) sum(count(node_cpu_seconds_total{mode='system'}) by ({{ .Values.tsdb.external_labels_key }},cpu,instance)) by({{ .Values.tsdb.external_labels_key }},instance) > 1.7
+        for: 10m
+        labels:
+          alertype: system
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.instance }}`}}\n- 5分钟负载{{`{{ $value | printf \"%.2f\" }}`}}倍"
+      - alert: ECS主机重启
+        expr: node_time_seconds - node_boot_time_seconds < 600
+        for: 1m
+        labels:
+          alertype: system
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.instance }}`}} 主机重启"
+      - alert: 磁盘使用率
+        expr: (100 - (node_filesystem_avail_bytes{fstype=~"ext.?|xfs"} / node_filesystem_size_bytes{fstype=~"ext.?|xfs"} * 100) > 90 and node_filesystem_avail_bytes{fstype=~"ext.?|xfs"}/1024/1024/1024 < 50) or 100 - node_filesystem_avail_bytes{fstype=~"ext.?|xfs"} / node_filesystem_size_bytes{fstype=~"ext.?|xfs"} * 100 > 97
+        for: 5m
+        labels:
+          alertype: system
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.instance }}`}}\n- {{`{{ $labels.mountpoint }}`}}：磁盘使用率{{`{{ $value | printf \"%.2f\" }}`}}%"
+      - alert: 磁盘读写容量
+        expr: (irate(node_disk_read_bytes_total{}[5m]) ) /1024 /1024  > 80 or (irate(node_disk_written_bytes_total{}[5m]) ) /1024 /1024 > 120
+        for: 5m
+        labels:
+          alertype: disk
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.instance }}`}}\n- {{`{{ $labels.device }}`}}：当前IO为{{`{{ $value | printf \"%.2f\" }}`}}MB/s"
+      - alert: 网络流入（下载）数据过多
+        expr: sum by({{ .Values.tsdb.external_labels_key }},device,instance) (irate(node_network_receive_bytes_total{device!~'tap.*|veth.*|br.*|docker.*|virbr.*|lo.*|cni.*'}[5m])) / 1024 / 1024 > 120
+        for: 5m
+        labels:
+          alertype: network
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.instance }}`}}\n- 流入数据为{{`{{ $value | printf \"%.2f\" }}`}}MB/s"
+      - alert: 网络流出（上传）数据过多
+        expr: sum by({{ .Values.tsdb.external_labels_key }},device,instance) (irate(node_network_transmit_bytes_total{device!~'tap.*|veth.*|br.*|docker.*|virbr.*|lo.*|cni.*'}[5m])) / 1024 / 1024 > 120
+        for: 5m
+        labels:
+          alertype: network
+          severity: warning
+        annotations:
+          description: "K8S集群：{{`{{ $labels.`}}{{ .Values.tsdb.external_labels_key }}{{` }}`}}：{{`{{ $labels.instance }}`}}\n- 流出数据为{{`{{ $value | printf \"%.2f\" }}`}}MB/s"
+
+  record.yaml: |
+    groups:
+    - name: node_usage_record_rules
+      interval: 1m
+      rules:
+      - record: cpu:usage:rate1m
+        expr: (1 - avg(irate(node_cpu_seconds_total{mode="idle"}[3m])) by ({{ .Values.tsdb.external_labels_key }},instance,job)) * 100
+      - record: mem:usage:rate1m
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vmalert
+  namespace: kubedoor
+  labels:
+    app: vmalert
+spec:
+  ports:
+    - name: vmalert
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+  selector:
+    app: vmalert
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vmalert
+  namespace: kubedoor
+  labels:
+    app: vmalert
+spec:
+  selector:
+    matchLabels:
+      app: vmalert
+  template:
+    metadata:
+      labels:
+        app: vmalert
+    spec:
+      containers:
+        - name: vmalert
+          image: registry.cn-shenzhen.aliyuncs.com/starsl/vmalert:stable
+          imagePullPolicy: IfNotPresent
+          args:
+            {{- if eq .Values.tsdb.type "KubeDoor" }}
+            - -datasource.url=http://{{ .Values.monit.vm_single.user }}:{{ .Values.monit.vm_single.passwd }}@victoria-metrics.kubedoor:8428
+            - -remoteWrite.url=http://{{ .Values.monit.vm_single.user }}:{{ .Values.monit.vm_single.passwd }}@victoria-metrics.kubedoor:8428
+            - -remoteRead.url=http://{{ .Values.monit.vm_single.user }}:{{ .Values.monit.vm_single.passwd }}@victoria-metrics.kubedoor:8428
+            {{- else if eq .Values.tsdb.type "Victoria-Metrics-Cluster" }}
+            - -datasource.url={{ .Values.tsdb.remoteRead }}
+            - -remoteWrite.url={{ .Values.tsdb.remoteWrite }}
+            - -remoteRead.url={{ .Values.tsdb.remoteRead }}
+            {{- else }}
+            - -datasource.url={{ .Values.tsdb.url }}
+            - -remoteWrite.url={{ .Values.tsdb.url }}
+            - -remoteRead.url={{ .Values.tsdb.url }}
+            {{- end }}
+            {{- if .Values.monit.alertmanager.enable }}
+            - -notifier.url=http://alertmanager.kubedoor:9093
+            {{- else }}
+            - -notifier.url={{ .Values.monit.vmalert.alertmanager_url }}
+            {{- end }}
+            - -rule=/etc/ruler/*.yaml
+            - -evaluationInterval=15s
+            - -httpListenAddr=0.0.0.0:8080
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+          resources:
+            limits:
+              cpu: '2'
+              memory: 2Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+          ports:
+            - containerPort: 8080
+              name: http
+          volumeMounts:
+            - mountPath: /etc/ruler/
+              name: ruler
+              readOnly: true
+      volumes:
+        - configMap:
+            name: vmalert-config
+          name: ruler
+{{- end }}

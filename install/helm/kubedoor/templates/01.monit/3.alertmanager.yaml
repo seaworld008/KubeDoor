@@ -1,0 +1,126 @@
+{{- if .Values.monit.alertmanager.enable }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: kubedoor
+data:
+  config.yml: |-
+    global:
+      resolve_timeout: 10m
+    route:
+      group_by: ['{{ .Values.tsdb.external_labels_key }}','namespace','alertname']
+      group_wait: 15s
+      group_interval: 1m
+      repeat_interval: 20m
+      receiver: 'kubedoor-alarm'
+      routes:
+      - receiver: 'kubedoor-alarm'
+        continue: false
+        match_re:
+          alertname: .*
+
+    receivers:
+    - name: 'kubedoor-alarm'
+      webhook_configs:
+      - url: 'http://kubedoor-alarm.kubedoor/msg/{{ .Values.config.MSG_TYPE }}={{ .Values.config.MSG_TOKEN }}'
+        send_resolved: true
+
+    inhibit_rules:
+    - source_match_re:
+        inhibit: K8S_Pod_status
+      target_match_re:
+        alertname: K8S_Pod_CPU总使用率|(K8S_Pod_内存使用).*
+      equal: ['pod']
+    
+    - source_match_re:
+        alertname: (K8S_Pod_内存使用).*
+        severity: 'R2'
+      target_match_re:
+        alertname: (K8S_Pod_内存使用).*
+        severity: 'R1'
+      equal: ['pod']
+    
+    - source_match:
+        inhibit: K8S_Pod_status
+        severity: 'R4'
+      target_match_re:
+        inhibit: K8S_Pod_status
+        severity: R1|R2|R3
+      equal: ['pod']
+    
+    - source_match:
+        inhibit: K8S_Pod_status
+        severity: 'R2'
+      target_match_re:
+        inhibit: K8S_Pod_status
+        severity: R1|R3
+      equal: ['pod']
+    
+    - source_match:
+        inhibit: K8S_Pod_status
+        severity: 'R3'
+      target_match:
+        inhibit: K8S_Pod_status
+        severity: 'R1'
+      equal: ['pod']
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  namespace: kubedoor
+  labels:
+    app: alertmanager
+spec:
+  selector:
+    app: alertmanager
+  type: NodePort
+  ports:
+    - name: web
+      port: 9093
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: kubedoor
+  labels:
+    app: alertmanager
+spec:
+  selector:
+    matchLabels:
+      app: alertmanager
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+    spec:
+      volumes:
+        - name: alertcfg
+          configMap:
+            name: alertmanager-config
+      containers:
+        - name: alertmanager
+          image: registry.cn-shenzhen.aliyuncs.com/starsl/alertmanager:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+          args:
+            - "--config.file=/etc/alertmanager/config.yml"
+          ports:
+            - containerPort: 9093
+              name: http
+          volumeMounts:
+            - mountPath: "/etc/alertmanager"
+              name: alertcfg
+          resources:
+            limits:
+              cpu: '2'
+              memory: 2Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+{{- end }}

@@ -6,9 +6,9 @@ export default {
   path: "/statistics",
   redirect: "/statistics/index",
   meta: {
-    icon: "ep:data-analysis",
+    icon: "ep:pie-chart",
     title: $t("menus.resourceStatistics"),
-    rank: 1
+    rank: 4
   },
   children: [
     {
