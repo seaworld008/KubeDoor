@@ -132,6 +132,7 @@
 - `kube_pod_container_info`
 - `kube_pod_container_resource_limits`
 - `kube_pod_container_resource_requests`
+#### 注意：KubeDoor 0.3.0版本开始已经集成以上组件！(可选安装)
 
 #### 1. 部署 Cert-manager
 
