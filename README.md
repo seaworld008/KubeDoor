@@ -54,6 +54,7 @@
   - 🚀基于VictoriaMetrics全套方案实现多K8S统一监控，统一告警规则管理，实现免配置完整指标采集。
   - 🎨WEBUI集成了K8S节点监控看板与K8S资源监控看板，均支持在单一看板中查看各个K8S集群的资源情况。
   - 📐集成了大量K8S资源与K8S节点的告警规则，并支持统一维护管理，支持对接企微，钉钉，飞书异常告警通知。
+  - 🐛修复了采集高峰期指标经常失败，获取不到值的BUG。
 <div align="center">
 <img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-node.png" width="400;" alt="k8s-node.png"/>
 <img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-res.png" width="400;" alt="k8s-res.png"/>
