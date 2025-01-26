@@ -55,11 +55,11 @@
   - 🎨WEBUI集成了K8S节点监控看板与K8S资源监控看板，均支持在单一看板中查看各个K8S集群的资源情况。
   - 📐集成了大量K8S资源与K8S节点的告警规则，并支持统一维护管理，支持对接企微，钉钉，飞书异常告警通知。
 <div align="center">
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-node.png" width="450;" alt="k8s-node.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-res.png" width="450;" alt="k8s-res.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert1.png" width="300;" alt="alert1.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert2.png" width="300;" alt="alert2.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert3.png" width="300;" alt="alert3.png"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-node.png" width="400;" alt="k8s-node.png"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-res.png" width="400;" alt="k8s-res.png"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert1.png" width="266;" alt="alert1.png"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert2.png" width="266;" alt="alert2.png"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert3.png" width="266;" alt="alert3.png"/>
 </div>
 
 #### 📊采集K8S微服务每日业务高峰时段P95的CPU内存消耗，以及需求、限制值与Pod数。基于采集的数据实现了一个Grafana看板并集成到了WEB UI。
