@@ -119,6 +119,7 @@
 
 用于K8S Mutating Webhook的强制https认证
 ```
+# 镜像已替换为国内镜像
 kubectl apply -f https://StarsL.cn/kubedoor/00.cert-manager_v1.16.2_cn.yaml
 ```
 
@@ -142,8 +143,8 @@ https://StarsL.cn/kubedoor/kubedoor-init.sql
 #### 3. 部署KubeDoor
 
 ```bash
-wget https://StarsL.cn/kubedoor/kubedoor-0.2.1.tgz
-tar -zxvf kubedoor.tgz
+wget https://StarsL.cn/kubedoor/kubedoor-0.3.0.tgz
+tar -zxvf kubedoor-0.3.0.tgz
 # 编辑values.yaml文件，请仔细阅读注释，根据描述修改配置内容。
 vim kubedoor/values.yaml
 # 使用helm安装（注意在kubedoor目录外执行。）
