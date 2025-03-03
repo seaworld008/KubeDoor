@@ -45,31 +45,43 @@
 ## 全新架构：花折 - KubeDoor 1.0发布！多K8S管控支持，多K8S统一监控、告警、展示最佳实践
 ![KubeDoor1 0 0 drawio](https://github.com/user-attachments/assets/53934d89-1084-4664-b71c-8d6de7a8b544)
 
-
 - 💎基于master & agent的全新架构：支持多K8S集群的统一管控。
 - 🚀新增：实时监控管理页面，对K8S资源，节点资源统一监控展示。
 <div align="center">
-   
-| <img src="./screenshot/1.0/1.png" /> | <img src="./screenshot/1.0/2.jpg" /> |<img src="./screenshot/1.0/3.png"  /> | 
-| -----------------------------------------------| ---------------------------------------------- | --------------------------------------------- |    
+
+| <img src="./screenshot/1.0/1.png"/> | <img src="./screenshot/1.0/2.jpg"/> |<img src="./screenshot/1.0/3.png"/> | 
+| ------------------------------------| ----------------------------------- | ---------------------------------- |    
 </div>
 
-- 🦄新增：统一告警分析/管理页面，告警按天聚合，相同告警日累计计数。支持对POD进行隔离，删除，Java dump，jstack，jfr，JVM数据采集分析等操作🕹️，并通知到群。并支持对微服务实时/定时/周期性的重启、扩缩容。
+- 🦄新增：统一告警分析/管理页面，告警按天聚合，相同告警日累计计数。
+- 🕹️支持对POD进行隔离，删除，Java dump，jstack，jfr，JVM数据采集分析等操作，并通知到群。
+- 🎯支持对微服务实时/定时/周期性的重启、扩缩容。
 <div align="center">
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/4.jpg" width="500;"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/5.png" width="500;"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/6.png" width="500;"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/7.jpg" width="500;"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/8.png" width="500;"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/12.jpg" width="500;"/>
+
+| <img src="./screenshot/1.0/4.jpg"/> | <img src="./screenshot/1.0/5.png"/> | <img src="./screenshot/1.0/14.png"/>|
+| ------------------------------------| ----------------------------------- | ----------------------------------- |
+| <img src="./screenshot/1.0/6.png"/> | <img src="./screenshot/1.0/7.jpg"/> | <img src="./screenshot/1.0/8.png"/> |
 </div>
-- 🥇基于VictoriaMetrics全套方案实现多K8S统一监控、告警、展示的最佳实践。🛠️内置丰富的K8S，JVM告警规则，支持多IM通知与@的告警服务。
-- 📀Helm一键部署完成监控、采集、展示、告警、通知（多K8S集群监控从未如此简单✨）并提供多种灵活的部署方案！
+
+- 🥇基于VictoriaMetrics全套方案实现多K8S统一监控、告警、展示的最佳实践。
+- 🛠️内置丰富的K8S，JVM告警规则，支持多IM通知与@的告警服务。
+- ❤️增加agent管理页面，更新，维护agent状态，配置采集与管控。
+<div align="center">
+   
+| <img src="./screenshot/1.0/vm-arch.png"/> | <img src="./screenshot/1.0/13.jpg"/>| <img src="./screenshot/1.0/11.jpg"/> |
+| ------------------------------------| ----------------------------------- | ----------------------------------- |
+</div>
+
 - 💠基于日维度采集每日高峰时段P95的资源数据，提供高峰资源分析看板，📊可以很好的观察各微服务长期的资源变化情况，即使查看1年的数据也很流畅。
+<div align="center">
+
+| <img src="./screenshot/1.0/9.png"/>  |<img src="./screenshot/1.0/10.png"/> | <img src="./screenshot/1.0/12.jpg"/> | 
+| -----------------------------------| ---------------------------------- | ---------------------------------- |  
+</div>
+
+- 📀Helm一键部署完成监控、采集、展示、告警、通知（多K8S集群监控从未如此简单✨）并提供多种灵活的部署方案！
 
 #### 因1.0架构调整，基于Mutating Webhook的针对微服务Pod数、需求值、限制值强管控的准入控制能力已临时停用。下一版本优化后重新启用。
-###文档补全中……
-
 
 ### KubeDooe 1.0 全新架构，全新部署
 ```
@@ -95,7 +107,6 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
    >**默认会从Prometheus采集10天数据(建议采集1个月)，并将10天内最大资源消耗日的数据写入到管控表，如果耗时较长，请等待采集完成或缩短采集时长。重复执行`采集并更新`不会导致重复写入数据，请放心使用，每次采集后都会自动将10天内最大资源消耗日的数据写入到管控表。**
 
 ---
-
 
 ## 💎功能描述
 ### 🎉🎉🎉KubeDoor 0.3.0新增：实时监控告警展示能力
@@ -172,31 +183,6 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
 - 🏅根据K8S节点资源使用率做节点管控与调度分析
 - 🚩采集更多的微服务资源信息: QPS/JVM/GC
 - 🚩针对微服务Pod做精细化操作：隔离、删除、dump、jstack、jfr、jvm
-
----
-
-## 🚀部署说明
-
-### 1.0版本全新架构，全新部署
-```
-# 下载helm包
-wget https://StarsL.cn/kubedoor/kubedoor-1.0.0.tgz
-tar -zxvf kubedoor-1.0.0.tgz
-cd kubedoor
-# master端安装：
-# 编辑values-master.yaml文件，请仔细阅读注释，根据描述修改配置内容。
-helm install kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
-# agent端安装：
-# 编辑values-agent.yaml
-helm install kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=kmw-prod-kunlun
-```
-
-### 2. 访问WebUI 并初始化数据
-
-1. 使用K8S节点IP + kubedoor-web的NodePort访问，默认账号密码都是 **`kubedoor`**
-
-2. 点击`agent管理`，先开启自动采集，设置好高峰期时段，再执行采集，输入需要采集的历史数据时长，点击`采集并更新`，即可采集历史数据并更新高峰时段数据到管控表。
-   >**默认会从Prometheus采集10天数据(建议采集1个月)，并将10天内最大资源消耗日的数据写入到管控表，如果耗时较长，请等待采集完成或缩短采集时长。重复执行`采集并更新`不会导致重复写入数据，请放心使用，每次采集后都会自动将10天内最大资源消耗日的数据写入到管控表。**
 
 ---
 
