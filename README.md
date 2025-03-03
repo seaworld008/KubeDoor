@@ -40,7 +40,7 @@
 <div align="center">
 
 ### 🎉花折 - KubeDoor 1.0发布！多K8S管控支持，多K8S统一监控、告警、展示最佳实践🎉
-![KubeDoor1 0 0 drawio](https://github.com/user-attachments/assets/53934d89-1084-4664-b71c-8d6de7a8b544)
+![KubeDoor1 0 0 drawio](screenshot/1.0/kubedoor1.0-arch.png)
 </div>
 
 ## 💎功能描述
