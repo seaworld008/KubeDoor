@@ -42,6 +42,18 @@
 
 🌼**花折 - KubeDoor** 是一个使用Python + Vue开发，基于K8S准入控制机制的微服务资源管控平台，以及支持多K8S集群统一远程存储、监控、告警、通知、展示的一站式K8S监控平台，并且专注微服务每日高峰时段的资源视角，实现了微服务的资源分析统计与强管控，确保微服务资源的资源申请率和真实使用率一致。
 
+## 全新架构：花折 - KubeDoor 1.0发布！多K8S管控支持，多K8S统一监控、告警、展示最佳实践
+
+💎基于master&amp;agent的全新架构：支持多K8S集群的统一管控。
+🚀新增：实时监控管理页面，对K8S资源，节点资源统一监控展示。
+🦄新增：统一告警分析/管理页面，告警按天聚合，相同告警日累计计数。支持对POD进行隔离，删除，Java dump，jstack，jfr，JVM数据采集分析等操作🕹️，并通知到群。并支持对微服务实时/定时/周期性的重启、扩缩容。
+🥇基于VictoriaMetrics全套方案实现多K8S统一监控、告警、展示的最佳实践。🛠️内置丰富的K8S，JVM告警规则，支持多IM通知与@的告警服务。
+📀Helm一键部署完成监控、采集、展示、告警、通知（多K8S集群监控从未如此简单✨）并提供多种灵活的部署方案！
+💠基于日维度采集每日高峰时段P95的资源数据，提供高峰资源分析看板，📊可以很好的观察各微服务长期的资源变化情况，即使查看1年的数据也很流畅。
+
+
+###文档补全中……
+
 ## 💠KubeDoor架构图
 ![图片](https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kubedoor-arch.png)
 
@@ -124,61 +136,27 @@
 ---
 
 ## 🚀部署说明
-#### 0. 需要已有 Prometheus监控K8S
-需要有`cadvisor`和`kube-state-metrics`这2个JOB，才能采集到K8S的以下指标
-- `container_cpu_usage_seconds_total`
-- `container_memory_working_set_bytes`
-- `container_spec_cpu_quota`
-- `kube_pod_container_info`
-- `kube_pod_container_resource_limits`
-- `kube_pod_container_resource_requests`
-#### 注意：KubeDoor 0.3.0版本开始已经集成以上组件！(可选安装)
 
-#### 1. 部署 Cert-manager
-
-用于K8S Mutating Webhook的强制https认证
+### 1.0版本全新架构，全新部署
 ```
-# 镜像已替换为国内镜像
-kubectl apply -f https://StarsL.cn/kubedoor/00.cert-manager_v1.16.2_cn.yaml
+# 下载helm包
+wget https://StarsL.cn/kubedoor/kubedoor-1.0.0.tgz
+tar -zxvf kubedoor-1.0.0.tgz
+cd kubedoor
+# master端安装：
+# 编辑values-master.yaml文件，请仔细阅读注释，根据描述修改配置内容。
+helm install kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
+# agent端安装：
+# 编辑values-agent.yaml
+helm install kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=kmw-prod-kunlun
 ```
 
-#### 2. 部署 ClickHouse 并初始化
-
-用于存储采集的指标数据与微服务的资源信息
-
-```bash
-# 默认使用docker compose运行，部署在/opt/clickhouse目录下。
-curl -s https://StarsL.cn/kubedoor/install-clickhouse.sh|sudo bash
-# 启动ClickHouse（启动后会自动初始化表结构）
-cd /opt/clickhouse && docker compose up -d
-```
-
-如果已有ClickHouse，请逐条执行以下SQL，完成初始化表结构
-
-```bash
-https://StarsL.cn/kubedoor/kubedoor-init.sql
-```
-
-#### 3. 部署KubeDoor
-
-```bash
-wget https://StarsL.cn/kubedoor/kubedoor-0.3.0.tgz
-tar -zxvf kubedoor-0.3.0.tgz
-# 编辑values.yaml文件，请仔细阅读注释，根据描述修改配置内容。
-vim kubedoor/values.yaml
-# 使用helm安装（注意在kubedoor目录外执行。）
-helm install kubedoor ./kubedoor
-# 安装完成后，所有资源都会部署在kubedoor命名空间。
-```
-
-#### 4. 访问WebUI 并初始化数据
+### 2. 访问WebUI 并初始化数据
 
 1. 使用K8S节点IP + kubedoor-web的NodePort访问，默认账号密码都是 **`kubedoor`**
 
-2. 点击`配置中心`，输入需要采集的历史数据时长，点击`采集并更新`，即可采集历史数据并更新高峰时段数据到管控表。
+2. 点击`agent管理`，先开启自动采集，设置好高峰期时段，再执行采集，输入需要采集的历史数据时长，点击`采集并更新`，即可采集历史数据并更新高峰时段数据到管控表。
    >**默认会从Prometheus采集10天数据(建议采集1个月)，并将10天内最大资源消耗日的数据写入到管控表，如果耗时较长，请等待采集完成或缩短采集时长。重复执行`采集并更新`不会导致重复写入数据，请放心使用，每次采集后都会自动将10天内最大资源消耗日的数据写入到管控表。**
-
-3. 点击`管控状态`的开关，显示`管控已启用`，表示已开启。
 
 ---
 
