@@ -16,7 +16,7 @@ spec:
       volumes:
         - name: storage
           persistentVolumeClaim:
-            claimName: victoria-metrics-data
+            claimName: kubedoor-victoriametrics-data
       containers:
         - name: vm
           image: registry.cn-shenzhen.aliyuncs.com/starsl/victoria-metrics:stable
@@ -52,13 +52,14 @@ metadata:
 spec:
   ports:
     - port: 8428
+  type: NodePort
   selector:
     app: victoria-metrics
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: victoria-metrics-data
+  name: kubedoor-victoriametrics-data
   namespace: kubedoor
 spec:
   accessModes:

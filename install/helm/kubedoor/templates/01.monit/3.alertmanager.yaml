@@ -9,61 +9,40 @@ data:
     global:
       resolve_timeout: 10m
     route:
-      group_by: ['{{ .Values.tsdb.external_labels_key }}','namespace','alertname']
-      group_wait: 15s
-      group_interval: 1m
-      repeat_interval: 20m
-      receiver: 'kubedoor-alarm'
+      group_by: [...]
+      group_wait: 0s
+      group_interval: 30s
+      repeat_interval: 30m
+      receiver: kubedoor-alarm
       routes:
-      - receiver: 'kubedoor-alarm'
+      - receiver: kubedoor-clickhouse
+        group_by: [...]
+        group_wait: 0s
+        group_interval: 30s
+        repeat_interval: 30m
+        continue: true
+        match_re:
+          alertname: K8S_Pod.*
+
+      - receiver: kubedoor-alarm
+        group_by: ['{{ .Values.tsdb.external_labels_key }}','namespace','alertname']
+        group_wait: 15s
+        group_interval: 30s
+        repeat_interval: 30m
         continue: false
         match_re:
           alertname: .*
 
     receivers:
+    - name: 'kubedoor-clickhouse'
+      webhook_configs:
+      - url: 'http://kubedoor-alarm.kubedoor/clickhouse'
+        send_resolved: true
+
     - name: 'kubedoor-alarm'
       webhook_configs:
       - url: 'http://kubedoor-alarm.kubedoor/msg/{{ .Values.config.MSG_TYPE }}={{ .Values.config.MSG_TOKEN }}'
         send_resolved: true
-
-    inhibit_rules:
-    - source_match_re:
-        inhibit: K8S_Pod_status
-      target_match_re:
-        alertname: K8S_Pod_CPU总使用率|(K8S_Pod_内存使用).*
-      equal: ['pod']
-    
-    - source_match_re:
-        alertname: (K8S_Pod_内存使用).*
-        severity: 'R2'
-      target_match_re:
-        alertname: (K8S_Pod_内存使用).*
-        severity: 'R1'
-      equal: ['pod']
-    
-    - source_match:
-        inhibit: K8S_Pod_status
-        severity: 'R4'
-      target_match_re:
-        inhibit: K8S_Pod_status
-        severity: R1|R2|R3
-      equal: ['pod']
-    
-    - source_match:
-        inhibit: K8S_Pod_status
-        severity: 'R2'
-      target_match_re:
-        inhibit: K8S_Pod_status
-        severity: R1|R3
-      equal: ['pod']
-    
-    - source_match:
-        inhibit: K8S_Pod_status
-        severity: 'R3'
-      target_match:
-        inhibit: K8S_Pod_status
-        severity: 'R1'
-      equal: ['pod']
 ---
 apiVersion: v1
 kind: Service
@@ -110,6 +89,7 @@ spec:
               value: Asia/Shanghai
           args:
             - "--config.file=/etc/alertmanager/config.yml"
+            - "--cluster.listen-address="
           ports:
             - containerPort: 9093
               name: http

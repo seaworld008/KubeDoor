@@ -1,0 +1,7 @@
+flask
+kubernetes
+loguru
+asyncio
+aiohttp
+fastapi
+uvicorn

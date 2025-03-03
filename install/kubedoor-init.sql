@@ -1,5 +1,16 @@
 CREATE DATABASE IF NOT EXISTS kubedoor ENGINE=Atomic;
 
+CREATE TABLE IF NOT EXISTS kubedoor.k8s_agent_status
+(
+    `env` String,
+    `collect` Bool DEFAULT false,
+    `peak_hours` String,
+    `admission` Bool DEFAULT false,
+    `admission_namespace` String
+)
+ENGINE = MergeTree
+PRIMARY KEY tuple(env)
+SETTINGS index_granularity = 8192;
 
 CREATE TABLE IF NOT EXISTS kubedoor.k8s_res_control
 (
@@ -56,3 +67,34 @@ PRIMARY KEY (date,env,namespace,deployment)
 ORDER BY (date,env,namespace,deployment)
 TTL toDateTime(date) + toIntervalDay(365)
 SETTINGS index_granularity = 8192;
+
+CREATE TABLE IF NOT EXISTS kubedoor.k8s_pod_alert_days
+(
+    `fingerprint` String,
+    `alert_status` String,
+    `send_resolved` Bool DEFAULT true,
+    `count_firing` UInt32,
+    `count_resolved` Int32,
+    `start_time` DateTime('Asia/Shanghai'),
+    `end_time` Nullable(DateTime('Asia/Shanghai')) DEFAULT NULL,
+    `severity` String,
+    `alert_group` String,
+    `alert_name` String,
+    `env` String,
+    `namespace` String,
+    `container` String,
+    `pod` String,
+    `description` String,
+    `operate` String
+)
+ENGINE = MergeTree
+PARTITION BY toYYYYMMDD(start_time)
+PRIMARY KEY (start_time,
+  fingerprint,
+  severity,
+  env,
+  alert_group,
+  alert_name)
+TTL toDateTime(start_time) + toIntervalDay(365)
+SETTINGS index_granularity = 8192;
+

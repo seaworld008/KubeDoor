@@ -1,4 +1,4 @@
-{{- if and (ne .Values.tsdb.type "Prometheus") (.Values.monit.vmagent.enable) }}
+{{- if .Values.monit.vmagent.enable }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -127,6 +127,49 @@ data:
           replacement: $1
           action: keep
 
+      - job_name: 'k8s-pods-jvm'
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_namespace]
+          regex: kube.*|nacos|apollo
+          action: drop
+        - source_labels: [__meta_kubernetes_pod_container_init]
+          regex: true
+          action: drop
+          
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_jvm]
+          regex: true|True
+          action: keep
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_jvmpath]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          target_label: __address__
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+
+        - source_labels: [__meta_kubernetes_pod_container_name]
+          action: replace
+          target_label: k8s_app
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: k8s_ns
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: k8s_pod
+          
+        - source_labels: [__meta_kubernetes_pod_container_name]
+          action: replace
+          target_label: container
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: pod
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -151,13 +194,7 @@ spec:
           imagePullPolicy: IfNotPresent
           args:
             - -promscrape.config=/config/scrape.yml
-            {{- if eq .Values.tsdb.type "KubeDoor" }}
-            - -remoteWrite.url=http://{{ .Values.monit.vm_single.user }}:{{ .Values.monit.vm_single.passwd }}@victoria-metrics.kubedoor:8428/api/v1/write
-            {{- else if eq .Values.tsdb.type "Victoria-Metrics-Cluster" }}
-            - -remoteWrite.url={{ .Values.tsdb.remoteWrite }}
-            {{- else }}
-            - -remoteWrite.url={{ .Values.tsdb.url }}/api/v1/write
-            {{- end }}
+            - -remoteWrite.url={{ .Values.tsdb.remoteWriteUrl }}
             - -promscrape.maxScrapeSize=500MB
             - -remoteWrite.disableOnDiskQueue
             - -loggerTimezone=Asia/Shanghai

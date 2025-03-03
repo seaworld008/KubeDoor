@@ -1,4 +1,0 @@
-flask
-kubernetes
-loguru
-clickhouse_driver

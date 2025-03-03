@@ -19,18 +19,13 @@ spec:
     spec:
       containers:
         - name: kubedoor-alarm
-          image: swr.cn-south-1.myhuaweicloud.com/starsl.cn/kubedoor-alarm:latest
+          image: {{ .Values.image.repository }}/kubedoor-alarm:{{ .Values.image.kubedoor_alarm_tag }}
+          envFrom:
+            - configMapRef:
+                name: kubedoor-config
           env:
             - name: TZ
               value: Asia/Shanghai
-            - name: MSG_TYPE
-              value: {{ .Values.config.MSG_TYPE }}
-            - name: MSG_TOKEN
-              value: {{ .Values.config.MSG_TOKEN }}
-            - name: ALERTMANAGER_EXTURL
-              value: {{ .Values.monit.kubedoor_alarm.ALERTMANAGER_EXTURL }}
-            - name: DEFAULT_AT
-              value: {{ .Values.monit.kubedoor_alarm.DEFAULT_AT }}
           resources:
             limits:
               cpu: '1'

@@ -1,3 +1,4 @@
+{{- if .Values.kubedoor.dash.enable }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -31,12 +32,12 @@ data:
     apiVersion: 1
     datasources:
     - jsonData:
-        port: {{ .Values.config.CK_PORT }}
-        server: {{ .Values.config.CK_HOST }}
-        username: {{ .Values.config.CK_USER }}
+        port: {{ .Values.clickhouse.CK_PORT }}
+        server: {{ .Values.clickhouse.CK_HOST }}
+        username: {{ .Values.clickhouse.CK_USER }}
       name: KubeDoor-Clickhouse
       secureJsonData:
-        password: {{ .Values.config.CK_PASSWORD }}
+        password: {{ .Values.clickhouse.CK_PASSWORD }}
       type: grafana-clickhouse-datasource
       uid: KubeDoor-Clickhouse
     - name: KubeDoor-Prometheus
@@ -153,14 +154,14 @@ spec:
           emptyDir: {}
       initContainers:
         - name: grafana-plugins-init
-          image: registry.cn-shenzhen.aliyuncs.com/starsl/grafana-plugins-init:0.1.0
+          image: registry.cn-shenzhen.aliyuncs.com/starsl/grafana-plugins-init:{{ .Values.image.grafana_plugins_init }}
           volumeMounts:
             - name: grafana-plugins
               mountPath: /var/lib/grafana/plugins
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
       containers:
         - name: grafana
-          image: registry.cn-shenzhen.aliyuncs.com/starsl/grafana-oss:11.4.0
+          image: registry.cn-shenzhen.aliyuncs.com/starsl/grafana-oss:{{ .Values.image.grafana_oss }}
           ports:
             - name: grafana
               containerPort: 3000
@@ -224,7 +225,7 @@ spec:
             periodSeconds: 10
             successThreshold: 1
             failureThreshold: 3
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           securityContext:
             capabilities:
               drop:
@@ -253,3 +254,5 @@ spec:
   selector:
     app.kubernetes.io/instance: kubedoor
     app.kubernetes.io/name: grafana
+
+{{- end }}
