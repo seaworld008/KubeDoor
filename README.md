@@ -26,13 +26,10 @@
 * [🌈概述](#概述)
 * [💠全新架构](#全新架构)
 * [💎功能描述](#功能描述)
-* [🎯2025 KubeDoor RoadMap](#2025-kubedoor-roadmap)
-* [🚀部署说明](#部署说明)
-* [⛔注意事项](#注意事项)
-* [🌰管控例子](#管控例子)
-* [🚩管控原则](#管控原则)
+* [🚀部署说明](#KubeDooe-1.0-全新架构，全新部署)
 * [🔔KubeDoor交流群](#KubeDoor交流群与赞赏)
 * [🙇贡献者](#贡献者)
+* [🎯2025 KubeDoor RoadMap](#2025-kubedoor-roadmap)
 * [⭐STAR History](#STAR-History)
 * [🥰鸣谢](#鸣谢)
 
@@ -108,10 +105,7 @@
   - 🌊**K8S调度器**通过真实的资源需求值就能够更精确地将Pod调度到合适的节点上，**避免资源碎片，实现节点的资源均衡**。
   - ♻**K8S自动扩缩容**也依赖资源需求值来判断，**真实的需求值可以更精准的触发扩缩容操作**。
   - 🛡**K8S的保障服务质量**（QoS机制）与需求值结合，真实需求值的Pod会被优先保留，**保证关键服务的正常运行**。
-
-
-### 因1.0架构调整，基于Mutating Webhook的针对微服务Pod数、需求值、限制值强管控的准入控制能力已临时停用。下一版本优化后重新启用。
-
+> 因1.0架构调整，基于Mutating Webhook针对微服务Pod数、需求值、限制值强管控的准入控制能力已暂停，下版本优化后重新启用。
 
 ### 🌐其它
   - ❤️Agent管理页面：更新，维护Agent状态，配置采集与管控。
@@ -119,11 +113,11 @@
   - 📊所有看板基于Grafana创建，并整合到前端UI内，使得数据分析可以快速实现更优雅的展示。
 <div align="center">
    
-| <img src="./screenshot/1.0/11.jpg" width="700;" />| 
+| <img src="./screenshot/1.0/11.jpg" width="800;" />| 
 | ------------------------------------|
 </div>
 
-### KubeDooe 1.0 全新架构，全新部署
+## KubeDooe 1.0 全新架构，全新部署
 ```
 ### 【下载helm包】
 wget https://StarsL.cn/kubedoor/kubedoor-1.0.0.tgz
@@ -148,26 +142,14 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
 
 ---
 
-#### 如果觉得项目不错，麻烦动动小手点个⭐️Star⭐️ 如果你还有其他想法或者需求，欢迎在 issue 中交流
-
-## 🎯2025 KubeDoor RoadMap
-
-- **[📅KubeDoor 项目进度](https://github.com/orgs/CassInfra/projects/1/views/1)**
-- 🥈英文版发布
-- 🏅微服务AI评分：根据资源使用情况，发现资源浪费的问题，结合AI缩容，降本增效，做AI综合评分，接入K8S异常AI分析能力。
-- 🏅微服务AI缩容：基于微服务高峰期的资源信息，对接AI分析与专家经验，计算微服务Pod数是否合理，生成缩容指令与统计。
-- 🏅根据K8S节点资源使用率做节点管控与调度分析
-- ✅采集更多的微服务资源信息: QPS/JVM/GC
-- ✅针对微服务Pod做精细化操作：隔离、删除、dump、jstack、jfr、jvm
-- ✅K8S资源告警管理，按日智能聚合。
-- ✅多K8S支持：在统一的WebUI对多K8S做管控和资源分析展示。
-- ✅集成K8S实时监控能力，实现一键部署，整合K8S实时资源看板。
----
-
 ## 🔔KubeDoor交流群与🧧赞赏
+
 <div align="center">
-无法加群可以加微信：starsliao
+
+#### 如果觉得项目不错，麻烦动动小手点个⭐️Star⭐️ 如果你还有其他想法或者需求，欢迎在 issue 中交流
 <img src="https://github.com/user-attachments/assets/eb324f3d-ea4e-4d30-a80c-36c5dfb7c090" width="600;" alt="kubedoor"/>
+
+无法加群可关注公众号入群
 
 </div>
 
@@ -199,6 +181,18 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
   </tr>
 </table>
 </div>
+
+## 🎯2025 KubeDoor RoadMap
+- **[📅KubeDoor 项目进度](https://github.com/orgs/CassInfra/projects/1/views/1)**
+- 🥈英文版发布
+- 🏅微服务AI评分：根据资源使用情况，发现资源浪费的问题，结合AI缩容，降本增效，做AI综合评分，接入K8S异常AI分析能力。
+- 🏅微服务AI缩容：基于微服务高峰期的资源信息，对接AI分析与专家经验，计算微服务Pod数是否合理，生成缩容指令与统计。
+- 🏅根据K8S节点资源使用率做节点管控与调度分析
+- ✅采集更多的微服务资源信息: QPS/JVM/GC
+- ✅针对微服务Pod做精细化操作：隔离、删除、dump、jstack、jfr、jvm
+- ✅K8S资源告警管理，按日智能聚合。
+- ✅多K8S支持：在统一的WebUI对多K8S做管控和资源分析展示。
+- ✅集成K8S实时监控能力，实现一键部署，整合K8S实时资源看板。
 
 ## ⭐STAR History
 
