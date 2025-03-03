@@ -54,6 +54,30 @@
 
 ###文档补全中……
 
+
+### 1.0版本全新架构，全新部署
+```
+# 下载helm包
+wget https://StarsL.cn/kubedoor/kubedoor-1.0.0.tgz
+tar -zxvf kubedoor-1.0.0.tgz
+cd kubedoor
+# master端安装：
+# 编辑values-master.yaml文件，请仔细阅读注释，根据描述修改配置内容。
+helm install kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
+# agent端安装：
+# 编辑values-agent.yaml
+helm install kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=kmw-prod-kunlun
+```
+
+### 2. 访问WebUI 并初始化数据
+
+1. 使用K8S节点IP + kubedoor-web的NodePort访问，默认账号密码都是 **`kubedoor`**
+
+2. 点击`agent管理`，先开启自动采集，设置好高峰期时段，再执行采集，输入需要采集的历史数据时长，点击`采集并更新`，即可采集历史数据并更新高峰时段数据到管控表。
+   >**默认会从Prometheus采集10天数据(建议采集1个月)，并将10天内最大资源消耗日的数据写入到管控表，如果耗时较长，请等待采集完成或缩短采集时长。重复执行`采集并更新`不会导致重复写入数据，请放心使用，每次采集后都会自动将10天内最大资源消耗日的数据写入到管控表。**
+
+---
+
 ## 💠KubeDoor架构图
 ![图片](https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kubedoor-arch.png)
 
