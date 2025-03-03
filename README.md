@@ -109,8 +109,7 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
 ---
 
 ## 💎功能描述
-### 🎉🎉🎉KubeDoor 0.3.0新增：实时监控告警展示能力
-#### 💠多K8S集群统一远程存储、监控告警通知展示的方案架构图
+#### 💠多K8S集群统一远程存储、监控、告警、通知、展示
 ![图片](https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/vm-arch.png)
   - 🌊支持**多K8S集群**统一远程存储、监控、告警、通知、展示的一站式K8S监控方案。
   - 📀Helm一键部署完成监控、采集、展示、告警、通知（多K8S集群监控从未如此简单✨）。
@@ -175,49 +174,15 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
 ## 🎯2025 KubeDoor RoadMap
 
 - **[📅KubeDoor 项目进度](https://github.com/orgs/CassInfra/projects/1/views/1)**
-- 🥇多K8S支持：在统一的WebUI对多K8S做管控和资源分析展示。
 - 🥈英文版发布
-- 🥉集成K8S实时监控能力，实现一键部署，整合K8S实时资源看板，接入K8S异常AI分析能力。
-- 🏅微服务AI评分：根据资源使用情况，发现资源浪费的问题，结合AI缩容，降本增效，做AI综合评分。
+- 🏅微服务AI评分：根据资源使用情况，发现资源浪费的问题，结合AI缩容，降本增效，做AI综合评分，接入K8S异常AI分析能力。
 - 🏅微服务AI缩容：基于微服务高峰期的资源信息，对接AI分析与专家经验，计算微服务Pod数是否合理，生成缩容指令与统计。
 - 🏅根据K8S节点资源使用率做节点管控与调度分析
-- 🚩采集更多的微服务资源信息: QPS/JVM/GC
-- 🚩针对微服务Pod做精细化操作：隔离、删除、dump、jstack、jfr、jvm
-
----
-
-## ⛔注意事项
-
-- 部署完成后，**默认不会开启管控机制**，你可以按上述操作通过WebUI 来开关管控能力。特殊情况下，你也可以使用`kubectl`来开关管控功能：
-
-    ```bash
-    # 开启管控
-    kubectl apply -f https://StarsL.cn/kubedoor/99.kubedoor-Mutating.yaml
-    
-    # 关闭管控
-    kubectl delete mutatingwebhookconfigurations kubedoor-webhook-configuration
-    ```
-
-- **开启管控机制后**，目前只会拦截**deployment的创建，更新，扩缩容**操作；管控**pod数，需求值，限制值**。不会控制其它操作和属性。
-
-- **开启管控机制后**，通过任何方式对Deployment执行扩缩容或者更新操作都会受到管控。
-
-- **开启管控机制后**，扩缩容或者重启Deployment时，Pod数优先取`指定Pod`字段，若该字段为-1，则取`当日Pod`字段。
-
-## 🌰管控例子
-
-- 你通过Kubectl对一个Deployment执行了扩容10个Pod后，**会触发拦截机制**，到数据库中去查询该微服务的Pod，然后使用该值来进行实际的扩缩容。（正确的做法应该是在KubeDoor-Web来执行扩缩容操作。）
-
-- 你通过某发布系统修改了Deployment的镜像版本，执行发布操作，**会触发拦截机制**，到数据库中去查询该微服务的Pod数，需求值，限制值，然后使用这些值值以及新的镜像来进行实际的更新操作。
-
-## 🚩管控原则
-
-- **你对deployment的操作不会触发deployment重启的，也没有修改Pod数的：** 触发管控拦截后，只会按照你的操作来更新deployment（不会重启Deployment）
-
-- **你对deployment的操作不会触发deployment重启的，并且修改Pod数的：** 触发管控拦截后，Pod数会根据数据库的值以及你修改的其它信息来更新Deployment。（不会重启Deployment）
-
-- **你对deployment的操作会触发deployment重启的：** 触发管控拦截后，会到数据库中去查询该微服务的Pod数，需求值，限制值，然后使用这些值以及你修改的其它信息来更新Deployment。（会重启Deployment）
-
+- ✅采集更多的微服务资源信息: QPS/JVM/GC
+- ✅针对微服务Pod做精细化操作：隔离、删除、dump、jstack、jfr、jvm
+- ✅K8S资源告警管理，按日智能聚合。
+- ✅多K8S支持：在统一的WebUI对多K8S做管控和资源分析展示。
+- ✅集成K8S实时监控能力，实现一键部署，整合K8S实时资源看板。
 ---
 
 ## 🔔KubeDoor交流群与🧧赞赏
@@ -239,19 +204,20 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/xiaofennie">
+            <img src="https://avatars.githubusercontent.com/u/47970207?v=4" width="100;" alt="xiaofennie"/>
+            <br />
+            <sub><b>xiaofennie</b></sub>
+        </a>
+    </td>
+    <td align="center">
         <a href="https://github.com/shidousanxia">
             <img src="https://avatars.githubusercontent.com/u/61586033?v=4" width="100;" alt="shidousanxia"/>
             <br />
             <sub><b>shidousanxia</b></sub>
         </a>
     </td>
-    <td align="center">
-        <a href="https://github.com/xiaofennie">
-            <img src="https://avatars.githubusercontent.com/u/47970207?v=4" width="100;" alt="xiaofennie"/>
-            <br />
-            <sub><b>xiaofennie</b></sub>
-        </a>
-    </td></tr>
+  </tr>
 </table>
 </div>
 
