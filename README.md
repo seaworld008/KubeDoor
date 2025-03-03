@@ -61,42 +61,23 @@
   - 🚀基于VictoriaMetrics全套方案实现多K8S统一监控，统一告警规则管理，实现免配置完整指标采集。
   - 🎨WEBUI集成了K8S节点监控看板与K8S资源监控看板，均支持在单一看板中查看各个K8S集群的资源情况。
   - 📐集成了大量K8S资源，JVM资源与K8S节点的告警规则，并支持统一维护管理，支持对接企微，钉钉，飞书告警通知及灵活的@机制。
-<div align="center">
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-node.png" width="400;" alt="k8s-node.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-res.png" width="400;" alt="k8s-res.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert1.png" width="266;" alt="alert1.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert2.png" width="266;" alt="alert2.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert3.png" width="266;" alt="alert3.png"/>
-</div>
-
-- 🎯
-
-- ❤️增加agent管理页面，更新，维护agent状态，配置采集与管控。
+  - 🎭实时监控管理页面，对K8S资源，节点资源统一监控展示的Grafana看板。支持对微服务实时/定时/周期性的重启、扩缩容。
 <div align="center">
    
-|  <img src="./screenshot/1.0/13.jpg"/>| <img src="./screenshot/1.0/11.jpg"/> |
-|  ----------------------------------- | ----------------------------------- |
-</div>
-
-
-
-- 🚀新增：实时监控管理页面，对K8S资源，节点资源统一监控展示。支持对微服务实时/定时/周期性的重启、扩缩容。
-<div align="center">
-
 | <img src="./screenshot/1.0/1.png"/> | <img src="./screenshot/1.0/2.jpg"/> |<img src="./screenshot/1.0/3.png"/> | 
-| ------------------------------------| ----------------------------------- | ---------------------------------- |    
+| ------------------------------------| ----------------------------------- | ---------------------------------- |
+| <img src="./screenshot/alert1.png"/> | <img src="./screenshot/alert2.png"/> |<img src="./screenshot/1.0/14.png"/>| 
+
 </div>
-
-
 
 ### 💠资源告警聚合：
 
-- 🦄新增：统一告警分析/管理页面，告警按天聚合，相同告警日累计计数。
+- 🦄K8S微服务统一告警分析与处理页面，告警按天智能聚合，相同告警按日累计计数，每日告警清晰明了。
 - 🕹️支持对POD进行隔离，删除，Java dump，jstack，jfr，JVM数据采集分析等操作，并通知到群。
 
 <div align="center">
 
-| <img src="./screenshot/1.0/4.jpg"/> | <img src="./screenshot/1.0/5.png"/> | <img src="./screenshot/1.0/14.png"/>|
+| <img src="./screenshot/1.0/4.jpg"/> | <img src="./screenshot/1.0/5.png"/> | <img src="./screenshot/1.0/15.png"/> |
 | ------------------------------------| ----------------------------------- | ----------------------------------- |
 | <img src="./screenshot/1.0/6.png"/> | <img src="./screenshot/1.0/7.jpg"/> | <img src="./screenshot/1.0/8.png"/> |
 </div>
