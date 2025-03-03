@@ -43,11 +43,25 @@
 🌼**花折 - KubeDoor** 是一个使用Python + Vue开发，基于K8S准入控制机制的微服务资源管控平台，以及支持多K8S集群统一远程存储、监控、告警、通知、展示的一站式K8S监控平台，并且专注微服务每日高峰时段的资源视角，实现了微服务的资源分析统计与强管控，确保微服务资源的资源申请率和真实使用率一致。
 
 ## 全新架构：花折 - KubeDoor 1.0发布！多K8S管控支持，多K8S统一监控、告警、展示最佳实践
-![KubeDoor1 0 0 drawio](https://github.com/user-attachments/assets/d0d22e7e-d396-4a4c-abca-1d0881776a97)
+![KubeDoor1 0 0 drawio](https://github.com/user-attachments/assets/53934d89-1084-4664-b71c-8d6de7a8b544)
+
 
 - 💎基于master & agent的全新架构：支持多K8S集群的统一管控。
 - 🚀新增：实时监控管理页面，对K8S资源，节点资源统一监控展示。
+<div align="center">
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/1.png" width="300;"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/2.jpg" width="300;"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/3.png" width="300;"/>
+</div>
 - 🦄新增：统一告警分析/管理页面，告警按天聚合，相同告警日累计计数。支持对POD进行隔离，删除，Java dump，jstack，jfr，JVM数据采集分析等操作🕹️，并通知到群。并支持对微服务实时/定时/周期性的重启、扩缩容。
+<div align="center">
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/4.jpg" width="500;"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/5.png" width="500;"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/6.png" width="500;"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/7.jpg" width="500;"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/8.png" width="500;"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/1.0/12.jpg" width="500;"/>
+</div>
 - 🥇基于VictoriaMetrics全套方案实现多K8S统一监控、告警、展示的最佳实践。🛠️内置丰富的K8S，JVM告警规则，支持多IM通知与@的告警服务。
 - 📀Helm一键部署完成监控、采集、展示、告警、通知（多K8S集群监控从未如此简单✨）并提供多种灵活的部署方案！
 - 💠基于日维度采集每日高峰时段P95的资源数据，提供高峰资源分析看板，📊可以很好的观察各微服务长期的资源变化情况，即使查看1年的数据也很流畅。
