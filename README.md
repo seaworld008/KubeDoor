@@ -50,7 +50,7 @@
 - 🚀新增：实时监控管理页面，对K8S资源，节点资源统一监控展示。
 <div align="center">
    
-| <img src="./screenshot/1.0/1.png" width=500 /> | <img src="./screenshot/1.0/2.jpg" width=500 /> |<img src="./screenshot/1.0/3.png" width=500 /> | 
+| <img src="./screenshot/1.0/1.png" /> | <img src="./screenshot/1.0/2.jpg" /> |<img src="./screenshot/1.0/3.png"  /> | 
 | -----------------------------------------------| ---------------------------------------------- | --------------------------------------------- |    
 </div>
 
