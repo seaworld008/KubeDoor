@@ -14,8 +14,6 @@
 
 花开堪折直须折🌻莫待无花空折枝
 
-### 🦄开思 开源第一弹：**基于AI推荐+专家经验的K8S负载感知调度与容量管控系统**
-
 </div>
 
 ---
@@ -219,4 +217,4 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
   - [Nginx](https://nginx.org/)
 
 - **特别鸣谢**
-  - [CassTime](https://www.casstime.com)：**KubeDoor**的诞生离不开🦄**开思**的支持。
+  - [**CassTime**](https://www.casstime.com)：**KubeDoor**的诞生离不开🦄**开思**的支持。
