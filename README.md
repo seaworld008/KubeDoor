@@ -41,21 +41,59 @@
 ## 🌈概述
 
 🌼**花折 - KubeDoor** 是一个使用Python + Vue开发，基于K8S准入控制机制的微服务资源管控平台，以及支持多K8S集群统一远程存储、监控、告警、通知、展示的一站式K8S监控平台，并且专注微服务每日高峰时段的资源视角，实现了微服务的资源分析统计与强管控，确保微服务资源的资源申请率和真实使用率一致。
-
-## 全新架构：花折 - KubeDoor 1.0发布！多K8S管控支持，多K8S统一监控、告警、展示最佳实践
+<div align="center">
+   
+## 💠全新架构
+### 🎉花折 - KubeDoor 1.0发布！多K8S管控支持，多K8S统一监控、告警、展示最佳实践🎉
 ![KubeDoor1 0 0 drawio](https://github.com/user-attachments/assets/53934d89-1084-4664-b71c-8d6de7a8b544)
+</div>
 
-- 💎基于master & agent的全新架构：支持多K8S集群的统一管控。
-- 🚀新增：实时监控管理页面，对K8S资源，节点资源统一监控展示。
+## 💎功能描述
+
+
+### 💠资源监控分析：多K8S集群统一监控最佳实践
+<div align="center">
+<img src="./screenshot/1.0/vm-arch.png" width="700;" />
+</div>
+
+  - 🌊支持**多K8S集群**统一远程存储、监控、告警、通知、展示的一站式K8S监控方案。
+  - 📀Helm一键部署完成监控、采集、展示、告警、通知（多K8S集群监控从未如此简单✨）。
+  - 🚀基于VictoriaMetrics全套方案实现多K8S统一监控，统一告警规则管理，实现免配置完整指标采集。
+  - 🎨WEBUI集成了K8S节点监控看板与K8S资源监控看板，均支持在单一看板中查看各个K8S集群的资源情况。
+  - 📐集成了大量K8S资源，JVM资源与K8S节点的告警规则，并支持统一维护管理，支持对接企微，钉钉，飞书告警通知及灵活的@机制。
+<div align="center">
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-node.png" width="400;" alt="k8s-node.png"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-res.png" width="400;" alt="k8s-res.png"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert1.png" width="266;" alt="alert1.png"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert2.png" width="266;" alt="alert2.png"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert3.png" width="266;" alt="alert3.png"/>
+</div>
+
+- 🎯
+
+- ❤️增加agent管理页面，更新，维护agent状态，配置采集与管控。
+<div align="center">
+   
+|  <img src="./screenshot/1.0/13.jpg"/>| <img src="./screenshot/1.0/11.jpg"/> |
+|  ----------------------------------- | ----------------------------------- |
+</div>
+
+
+
+- 🚀新增：实时监控管理页面，对K8S资源，节点资源统一监控展示。支持对微服务实时/定时/周期性的重启、扩缩容。
 <div align="center">
 
 | <img src="./screenshot/1.0/1.png"/> | <img src="./screenshot/1.0/2.jpg"/> |<img src="./screenshot/1.0/3.png"/> | 
 | ------------------------------------| ----------------------------------- | ---------------------------------- |    
 </div>
 
+
+
+### 💠资源告警聚合：
+
 - 🦄新增：统一告警分析/管理页面，告警按天聚合，相同告警日累计计数。
 - 🕹️支持对POD进行隔离，删除，Java dump，jstack，jfr，JVM数据采集分析等操作，并通知到群。
-- 🎯支持对微服务实时/定时/周期性的重启、扩缩容。
+
 <div align="center">
 
 | <img src="./screenshot/1.0/4.jpg"/> | <img src="./screenshot/1.0/5.png"/> | <img src="./screenshot/1.0/14.png"/>|
@@ -63,14 +101,31 @@
 | <img src="./screenshot/1.0/6.png"/> | <img src="./screenshot/1.0/7.jpg"/> | <img src="./screenshot/1.0/8.png"/> |
 </div>
 
-- 🥇基于VictoriaMetrics全套方案实现多K8S统一监控、告警、展示的最佳实践。
-- 🛠️内置丰富的K8S，JVM告警规则，支持多IM通知与@的告警服务。
-- ❤️增加agent管理页面，更新，维护agent状态，配置采集与管控。
+
+
+
+### 💠高峰期资源管控
+
+#### 📊采集K8S微服务每日业务高峰时段P95的CPU内存消耗，以及需求、限制值与Pod数。基于采集的数据实现了一个Grafana看板并集成到了WEB UI。
+  - 🎨**基于日维度采集每日高峰时段P95的资源数据**,可以很好的观察各微服务长期的资源变化情况，即使查看1年的数据也很流畅。
+  - 🏅高峰时段全局资源统计与各**资源TOP10**
+  - 🔎命名空间级别高峰时段P95资源使用量与**资源消耗占整体资源的比例**
+  - 🧿**微服务级别**高峰期整体资源与使用率分析
+  - 📈微服务与**Pod级别**的资源曲线图(需求值,限制值,使用值)
 <div align="center">
-   
-| <img src="./screenshot/1.0/vm-arch.png"/> | <img src="./screenshot/1.0/13.jpg"/>| <img src="./screenshot/1.0/11.jpg"/> |
-| ------------------------------------| ----------------------------------- | ----------------------------------- |
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd1.jpg" width="400;" alt="kubedoor1"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd2.jpg" width="400;" alt="kubedoor2"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd3.jpg" width="400;" alt="kubedoor3"/>
+<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd4.jpg" width="400;" alt="kubedoor4"/>
 </div>
+
+#### 🎡每日从采集的数据中，获取最近10天各微服务的资源信息，获取资源消耗最大日的P95资源，作为微服务的需求值写入数据库。
+  - ✨**基于准入控制机制**实现K8S微服务资源的**真实使用率和资源申请需求值保持一致**，具有非常重要的意义。
+  - 🌊**K8S调度器**通过真实的资源需求值就能够更精确地将Pod调度到合适的节点上，**避免资源碎片，实现节点的资源均衡**。
+  - ♻**K8S自动扩缩容**也依赖资源需求值来判断，**真实的需求值可以更精准的触发扩缩容操作**。
+  - 🛡**K8S的保障服务质量**（QoS机制）与需求值结合，真实需求值的Pod会被优先保留，**保证关键服务的正常运行**。
+
+
 
 - 💠基于日维度采集每日高峰时段P95的资源数据，提供高峰资源分析看板，📊可以很好的观察各微服务长期的资源变化情况，即使查看1年的数据也很流畅。
 <div align="center">
@@ -78,6 +133,12 @@
 | <img src="./screenshot/1.0/9.png"/>  |<img src="./screenshot/1.0/10.png"/> | <img src="./screenshot/1.0/12.jpg"/> | 
 | -----------------------------------| ---------------------------------- | ---------------------------------- |  
 </div>
+
+
+
+
+
+
 
 - 📀Helm一键部署完成监控、采集、展示、告警、通知（多K8S集群监控从未如此简单✨）并提供多种灵活的部署方案！
 
@@ -108,43 +169,6 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
 
 ---
 
-## 💎功能描述
-#### 💠多K8S集群统一远程存储、监控、告警、通知、展示
-![图片](https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/vm-arch.png)
-  - 🌊支持**多K8S集群**统一远程存储、监控、告警、通知、展示的一站式K8S监控方案。
-  - 📀Helm一键部署完成监控、采集、展示、告警、通知（多K8S集群监控从未如此简单✨）。
-  - 🚀基于VictoriaMetrics全套方案实现多K8S统一监控，统一告警规则管理，实现免配置完整指标采集。
-  - 🎨WEBUI集成了K8S节点监控看板与K8S资源监控看板，均支持在单一看板中查看各个K8S集群的资源情况。
-  - 📐集成了大量K8S资源与K8S节点的告警规则，并支持统一维护管理，支持对接企微，钉钉，飞书异常告警通知。
-  - 🐛修复了采集高峰期指标经常失败，获取不到值的BUG。
-<div align="center">
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-node.png" width="400;" alt="k8s-node.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/k8s-res.png" width="400;" alt="k8s-res.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert1.png" width="266;" alt="alert1.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert2.png" width="266;" alt="alert2.png"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/alert3.png" width="266;" alt="alert3.png"/>
-</div>
-
----
-
-#### 📊采集K8S微服务每日业务高峰时段P95的CPU内存消耗，以及需求、限制值与Pod数。基于采集的数据实现了一个Grafana看板并集成到了WEB UI。
-  - 🎨**基于日维度采集每日高峰时段P95的资源数据**,可以很好的观察各微服务长期的资源变化情况，即使查看1年的数据也很流畅。
-  - 🏅高峰时段全局资源统计与各**资源TOP10**
-  - 🔎命名空间级别高峰时段P95资源使用量与**资源消耗占整体资源的比例**
-  - 🧿**微服务级别**高峰期整体资源与使用率分析
-  - 📈微服务与**Pod级别**的资源曲线图(需求值,限制值,使用值)
-<div align="center">
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd1.jpg" width="400;" alt="kubedoor1"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd2.jpg" width="400;" alt="kubedoor2"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd3.jpg" width="400;" alt="kubedoor3"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd4.jpg" width="400;" alt="kubedoor4"/>
-</div>
-
-#### 🎡每日从采集的数据中，获取最近10天各微服务的资源信息，获取资源消耗最大日的P95资源，作为微服务的需求值写入数据库。
-  - ✨**基于准入控制机制**实现K8S微服务资源的**真实使用率和资源申请需求值保持一致**，具有非常重要的意义。
-  - 🌊**K8S调度器**通过真实的资源需求值就能够更精确地将Pod调度到合适的节点上，**避免资源碎片，实现节点的资源均衡**。
-  - ♻**K8S自动扩缩容**也依赖资源需求值来判断，**真实的需求值可以更精准的触发扩缩容操作**。
-  - 🛡**K8S的保障服务质量**（QoS机制）与需求值结合，真实需求值的Pod会被优先保留，**保证关键服务的正常运行**。
 
 #### 🌐实现了一个K8S管控与展示的WEB UI。
 
@@ -154,22 +178,10 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
   - 📊在前端页面集成Grafana看板,更优雅的展示与分析采集的微服务数据。
 ![kd-web](https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd-web.png)
 
-#### 🚧当微服务更新部署时，基于K8S准入控制机制对资源进行管控【默认不开启】：
-  - 🧮**控制每个微服务的Pod数、需求值、限制值**必须与数据库一致，以确保微服务的真实使用率和资源申请需求值相等，从而实现微服务的统一管控与Pod的负载感知调度均衡能力。
-  - 🚫**对未管控的微服务，会部署失败并通知**，必须在WEB UI新增微服务后才能部署。（作为新增微服务的唯一管控入口，杜绝未经允许的新服务部署。）
-  - 🌟通过本项目基于**K8S准入机制的扩展**思路，大家可以自行简单定制需求，即可对K8S实现各种高灵活性与扩展性附加能力，诸如统一或者个性化的**拦截、管理、策略、标记微服务**等功能。
 
-<div align="center">
 
-**K8S准入控制逻辑**
-
-![kd-k8s](https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd-k8s.png)
 
 #### 如果觉得项目不错，麻烦动动小手点个⭐️Star⭐️ 如果你还有其他想法或者需求，欢迎在 issue 中交流
-
-</div>
-
----
 
 ## 🎯2025 KubeDoor RoadMap
 
@@ -187,7 +199,7 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
 
 ## 🔔KubeDoor交流群与🧧赞赏
 <div align="center">
-
+无法加群可以加微信：starsliao
 <img src="https://github.com/user-attachments/assets/eb324f3d-ea4e-4d30-a80c-36c5dfb7c090" width="600;" alt="kubedoor"/>
 
 </div>
