@@ -80,8 +80,6 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
 
 ---
 
-## 💠KubeDoor架构图
-![图片](https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kubedoor-arch.png)
 
 ## 💎功能描述
 ### 🎉🎉🎉KubeDoor 0.3.0新增：实时监控告警展示能力
