@@ -43,7 +43,7 @@ tsdb:
 
   # 【当type为: KubeDoor时，无需填写。】当type为: Victoria-Metrics-Single, 请填写您的时序数据库地址。
   # 注意：Victoria-Metrics-Single默认端口是8428。
-  url: "http://opsalpha:wEFHdfp2P@10.7.0.221:8428" #时序数据库的地址，http开头，端口号结尾，有认证的按例子格式填写。
+  url: "http://monit:dduF1E3sj@10.7.0.100:8428" #时序数据库的地址，http开头，端口号结尾，有认证的按例子格式填写。
 
   # 【当type为: KubeDoor时，无需填写。】当type为: Victoria-Metrics-Cluster, 请分别填写完整的时序数据库读/写接口地址。
   # 注意：Victoria-Metrics-Cluster默认读端口是8481，写端口是8480。
