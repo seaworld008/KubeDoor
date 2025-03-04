@@ -118,8 +118,8 @@
 </div>
 
 ## 📀KubeDoor 1.0 全新架构，全新部署
-#### 👉🏻[灵活部署方案](docs/灵活部署方案.md)
-#### 🛠安装
+#### 👉🏻[点击查看灵活部署方案](docs/灵活部署方案.md)
+#### 🛠快速安装
 ```
 ### 【下载helm包】
 wget https://StarsL.cn/kubedoor/kubedoor-1.0.0.tgz
