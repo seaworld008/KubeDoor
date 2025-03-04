@@ -32,9 +32,9 @@ tsdb:
 # 【注意】如果您当前K8S已经有完整的Prometheus/vmagent监控，并且是远程写入时序数据库，那么只需要kubedoor-master配置上该时序数据库信息即可，请把以下所有的enable都设置为false。
 
   # 【当您需要kubedoor为您安装vmagent时，才需要填写以下地址】vmagent远程写统一的时序数据库的完整URL。
-  # 注意：Victoria-Metrics-Single默认端口是8428，地址格式：http://opsalpha:wEFHpZ6u2P@10.7.0.221:8428/api/v1/write
+  # 注意：Victoria-Metrics-Single默认端口是8428，地址格式：http://monit:dduF1E3sj@10.7.0.100:8428/api/v1/write
   # Victoria-Metrics-Cluster默认写端口是8480，地址格式：http://vminsert:8480/insert/0/prometheus
-  remoteWriteUrl: "http://monit:fjhs47sgva@10.7.0.100:8428/api/v1/write"
+  remoteWriteUrl: "http://monit:dduF1E3sj@10.7.0.100:8428/api/v1/write"
 
 
 monit:
