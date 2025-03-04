@@ -92,10 +92,10 @@
   - 🧿**微服务级别**高峰期整体资源与使用率分析
   - 📈微服务与**Pod级别**的资源曲线图(需求值,限制值,使用值)
 <div align="center">
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd1.jpg" width="400;" alt="kubedoor1"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd2.jpg" width="400;" alt="kubedoor2"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd3.jpg" width="400;" alt="kubedoor3"/>
-<img src="https://raw.githubusercontent.com/CassInfra/KubeDoor/refs/heads/main/screenshot/kd4.jpg" width="400;" alt="kubedoor4"/>
+  
+|<img src="./screenshot/kd1.jpg"/>|<img src="./screenshot/kd2.jpg"/>|
+|-|-|
+|<img src="./screenshot/kd3.jpg"/>|<img src="./screenshot/kd4.jpg"/>|
 </div>
 
 #### 🎡每日从采集的数据中，获取最近10天各微服务的资源信息，获取资源消耗最大日的P95资源，作为微服务的需求值写入数据库。
