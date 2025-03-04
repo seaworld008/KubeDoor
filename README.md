@@ -39,7 +39,7 @@
 ## 💠全新架构
 <div align="center">
 
-### 🎉花折 - KubeDoor 1.0发布！多K8S管控支持，多K8S统一监控、告警、展示最佳实践🎉
+### 🎉花折 - KubeDoor 1.0发布！全新架构，多K8S管控支持，多K8S统一监控、告警、展示最佳实践🎉
 ![KubeDoor1 0 0 drawio](screenshot/1.0/kubedoor1.0-arch.png)
 </div>
 
@@ -118,6 +118,7 @@
 </div>
 
 ## 📀KubeDoor 1.0 全新架构，全新部署
+#### 👉🏻[灵活部署方案](docs/灵活部署方案.md)
 #### 🛠安装
 ```
 ### 【下载helm包】
