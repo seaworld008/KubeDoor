@@ -54,7 +54,7 @@ tsdb:
 
 monit:
   #【当tsdb.type: "KubeDoor"时,才会安装Victoria-Metrics-Single，需要填写以下vm_single的内容】
-  #【当tsdb.type非KubeDoor时，无需填写以下信息】
+  #【当tsdb.type非KubeDoor时，无需填写以下vm_single的内容】
   vm_single:
     retention: 30d # 监控数据的存储时长
     user: monit # vm_single的账号
