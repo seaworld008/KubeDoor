@@ -26,6 +26,41 @@ data:
   ALERTMANAGER_EXTURL: {{ .Values.monit.kubedoor_alarm.ALERTMANAGER_EXTURL | quote }}
 
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubedoor-info
+  namespace: kubedoor
+data:
+  install-info.txt: |
+    # ClickHouse
+    ClickHouse WEBUI: http://{{ .Values.clickhouse.CK_HOST }}:{{ .Values.clickhouse.CK_HTTP_PORT }}/play
+    ClickHouse 用户名: {{ .Values.clickhouse.CK_USER }}
+    ClickHouse 密码: {{ .Values.clickhouse.CK_PASSWORD }}
+    
+    # TSDB
+    {{- if eq .Values.tsdb.type "KubeDoor" }}
+    时序数据库类型: KubeDoor (Victoria-Metrics-Single)
+    Victoria-Metrics WEBUI: http://{{ .Values.monit.vm_single.user }}:{{ .Values.monit.vm_single.passwd }}@victoria-metrics.kubedoor:8428
+    vmagent配置远程写地址: http://{{ .Values.monit.vm_single.user }}:{{ .Values.monit.vm_single.passwd }}@victoria-metrics.kubedoor:8428/api/v1/write
+    注意: 跨K8S访问时，请把victoria-metrics.kubedoor:8428替换为您外部可访问的IP和端口
+    {{- else if eq .Values.tsdb.type "Victoria-Metrics-Cluster" }}
+    时序数据库类型: Victoria-Metrics-Cluster
+    Victoria-Metrics远程读地址: http://{{ .Values.tsdb.remoteRead }}
+    vmagent配置远程写地址: http://{{ .Values.tsdb.remoteWrite }}
+    {{- else }}
+    时序数据库类型: Victoria-Metrics-Single
+    Victoria-Metrics WEBUI: {{ .Values.tsdb.url }}
+    vmagent配置远程写地址: {{ .Values.tsdb.url }}/api/v1/write
+    {{- end }}
+    
+    统一的external_labels_key: {{ .Values.tsdb.external_labels_key }}
+    
+    # KubeDoor web
+    KubeDoor webUI: http://nodeIP:kubedoor-web nodeport
+    默认账号密码都是: kubedoor
+
+---
 
 apiVersion: apps/v1
 kind: Deployment

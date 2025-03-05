@@ -7,9 +7,8 @@ kubedoor:
   agent:
     enable: true
   master:
-    # ws: "ws://kubedoor-master.kubedoor" # master和agent在同一个K8S，可以直接配置kubedoor-master的service，免认证。
-    ws: "ws://Up4biLko1dNh:qCa22jDkfc9y@10.7.0.226:31027" # 跨K8S访问请使用kubedoor-web的地址，并配置认证信息。
-
+    ws: "ws://kubedoor-master.kubedoor" # master和agent在同一个K8S，可以直接配置kubedoor-master的service，免认证。
+    #ws: "ws://Up4biLko1dNh:qCa22jDkfc9y@10.7.0.226:31027" # 跨K8S访问请使用kubedoor-web外部可访问的地址和端口，并配置认证信息。
 
 config:
   # 这里填写通知的信息，大部分操作会通过该机器人进行通知
@@ -26,15 +25,17 @@ tsdb:
   # 使用远程存储时，这个key/value会作为标签增加到每一个指标中，这样通过这个标签就可以区分出指标属于哪个K8S了。
 
   external_labels_key: "origin_prometheus" # 注意key只能字母数字下划线，不能数字开头，不能有中横线和点。注意部署到多套K8S时，请保持external_labels_key都相同，并且与kubedoor-master的也相同。
-  external_labels_value: "my-test-k8s" # 设置为你的K8S的名称。
+
+  # 如果是使用您已有的Prometheus/vmagent，请在您的Prometheus/vmagent配置中找到external_labels的value填入，如果您没有配置过请在您的Prometheus/vmagent配置中新增一个。
+  # 如果是kubeDoor为您部署vmagent，请随意填写为您的K8S名称。
+  external_labels_value: "my-test-k8s"
 
 
-# 【注意】如果您当前K8S已经有完整的Prometheus/vmagent监控，并且是远程写入时序数据库，那么只需要kubedoor-master配置上该时序数据库信息即可，请把以下所有的enable都设置为false。
+# 【注意】如果您当前K8S已经有完整的Prometheus/vmagent监控，并且是远程写入时序数据库，那么只需要kubedoor-master上配置您的时序数据库信息即可，请把以下所有的enable都设置为false，将不会安装false的组件。
+#  详细请参考：https://github.com/CassInfra/KubeDoor/blob/main/docs/灵活部署方案.md#3-接入部署已经有完整的多k8s监控系统
 
-  # 【当您需要kubedoor为您安装vmagent时，才需要填写以下地址】vmagent远程写统一的时序数据库的完整URL。
-  # 注意：Victoria-Metrics-Single默认端口是8428，地址格式：http://monit:dduF1E3sj@10.7.0.100:8428/api/v1/write
-  # Victoria-Metrics-Cluster默认写端口是8480，地址格式：http://vminsert:8480/insert/0/prometheus
-  remoteWriteUrl: "http://monit:dduF1E3sj@10.7.0.100:8428/api/v1/write"
+  #【当您需要kubedoor为您安装vmagent时，才需要填写以下地址】注意:Victoria-Metrics-Cluster地址格式：http://你的vminsert地址:8480/insert/0/prometheus
+  remoteWriteUrl: "http://monit:dduF1E3sj@10.7.0.100:8428/api/v1/write" # Victoria-Metrics远程写地址
 
 
 monit:
