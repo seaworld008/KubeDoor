@@ -5,7 +5,7 @@
 [![open issues](http://isitmaintained.com/badge/open/CassInfra/KubeDoor.svg)](https://github.com/CassInfra/KubeDoor/issues)
 [![Python](https://img.shields.io/badge/python-v3.11-3776ab)](https://nodejs.org)
 [![Node.js](https://img.shields.io/badge/node.js-v22-229954)](https://nodejs.org)
-[![GitHub license](https://img.shields.io/badge/license-Apache-blueviolet)](https://github.com/CassInfra/KubeDoor/blob/main/LICENSE)
+[![GitHub license](https://img.shields.io/badge/license-MIT-blueviolet)](https://github.com/CassInfra/KubeDoor/blob/main/LICENSE)
 [![OSCS Status](https://www.oscs1024.com/platform/badge/CassInfra/KubeDoor.svg?size=small)](https://www.murphysec.com/dr/Zoyt5g0huRavAtItj2)
 
 <img src="https://github.com/user-attachments/assets/3dc6a022-cacf-4b89-9e26-24909102552c" width="80;" alt="kubedoor"/>
