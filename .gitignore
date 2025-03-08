@@ -165,5 +165,6 @@ cython_debug/
 # golang
 kubedoor-agent-amd64
 kubedoor-agent-arm64
-kubedoor-agent-go/README.md
+src/kubedoor-agent-go/Dockerfile-local
+src/kubedoor-agent-go/build.sh
 pkg

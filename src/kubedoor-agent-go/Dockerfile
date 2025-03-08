@@ -1,5 +1,5 @@
 # 多阶段构建支持不同架构的二进制文件
-FROM --platform=$BUILDPLATFORM hub.glodon.com/glodon-pub/debian:12.8 AS base
+FROM --platform=$BUILDPLATFORM debian:12.8 AS base
 
 WORKDIR /
 
@@ -16,8 +16,7 @@ RUN case "$TARGETPLATFORM" in \
     esac
 
 # 构建最终镜像
-# FROM hub.glodon.com/glodon-pub/static:nonroot
-FROM hub.glodon.com/glodon-pub/debian:12.8
+FROM  debian:12.8
 
 WORKDIR /
 COPY --from=base /kubedoor-agent /kubedoor-agent
