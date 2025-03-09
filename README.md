@@ -155,10 +155,10 @@ cd kubedoor
 # try
 helm install kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml --dry-run --debug
 # install
-helm upgrade kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
+helm install kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
 ### 【agent端安装】
 # 编辑values-agent.yaml文件，请仔细阅读注释，根据描述修改配置内容。
-helm upgrade kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=kmw-prod-kunlun
+helm install kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=kmw-prod-kunlun
 ```
 ### 访问WebUI 并初始化数据
 
