@@ -186,6 +186,13 @@ helm install kubedoor-agent . --namespace kubedoor --create-namespace --values v
             <sub><b>shidousanxia</b></sub>
         </a>
     </td>
+    <td align="center">
+        <a href="https://github.com/comqx">
+            <img src="https://avatars.githubusercontent.com/u/30148386?v=4" width="100;" alt="comqx"/>
+            <br />
+            <sub><b>comqx</b></sub>
+        </a>
+    </td>
   </tr>
 </table>
 </div>
