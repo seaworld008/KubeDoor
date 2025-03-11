@@ -2,11 +2,14 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 	"kubedoor-agent-go/api"
 	"kubedoor-agent-go/config"
+	"kubedoor-agent-go/podmgr"
 	"kubedoor-agent-go/utils"
+	"strings"
 )
 
 func handleMessage(conn *websocket.Conn, data config.MessageDataStruct) {
@@ -23,6 +26,22 @@ func handleMessage(conn *websocket.Conn, data config.MessageDataStruct) {
 		zap.Any("query", data.Query),
 		zap.Any("body", data.Body),
 	)
+
+	if strings.HasPrefix(data.Path, "/api/pod/task_status") {
+		parts := strings.Split(data.Path, "/")
+		taskID := ""
+		if len(parts) < 4 {
+
+		}
+		taskID = parts[4] // 提取 task_id
+		utils.Logger.Info(fmt.Sprintf("Task ID: %s", taskID))
+		response = podmgr.GetTaskStatus(taskID)
+		responseMessage.Response = response
+		if err := conn.WriteJSON(responseMessage); err != nil {
+			utils.Logger.Error("Failed to send response", zap.Error(err))
+		}
+		return
+	}
 
 	// 按照 path 处理不同的 API
 	switch data.Path {
@@ -69,7 +88,21 @@ func handleMessage(conn *websocket.Conn, data config.MessageDataStruct) {
 			utils.Logger.Error("Failed to unmarshal body", zap.Error(err))
 		}
 		response = api.ScheduleServiceScaleRestart(bodyMap["type"].(string), body)
-
+	case "/api/pod/modify_pod":
+		utils.Logger.Info("podmgr.ModifyPod:", zap.Any("query", data.Query))
+		response = podmgr.ModifyPod(data.Query)
+	case "/api/pod/delete_pod":
+		utils.Logger.Info("podmgr.DeletePod:", zap.Any("query", data.Query))
+		response = podmgr.DeletePodHandler(data.Query)
+	case "/api/pod/auto_dump":
+		utils.Logger.Info("podmgr.AutoDump:", zap.Any("query", data.Query))
+		//response = podmgr.AutoDump(data.Query)
+	case "/api/pod/auto_jstack":
+		utils.Logger.Info("podmgr.auto_jstack:", zap.Any("query", data.Query))
+	case "/api/pod/auto_jfr":
+		utils.Logger.Info("podmgr.auto_jfr:", zap.Any("query", data.Query))
+	case "/api/pod/auto_jvm_mem":
+		utils.Logger.Info("podmgr.auto_jvm_mem:", zap.Any("query", data.Query))
 	default:
 		utils.Logger.Warn("Unknown path", zap.String("path", data.Path))
 	}

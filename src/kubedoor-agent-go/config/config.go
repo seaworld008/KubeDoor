@@ -1,6 +1,9 @@
 package config
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"sync"
+)
 
 type MessageDataStruct struct {
 	MessageType string                 `json:"type"` // request
@@ -44,4 +47,52 @@ type ResponseMessageStruct struct {
 	ResponseMessageType string      `json:"type"`
 	RequestId           string      `json:"request_id"`
 	Response            interface{} `json:"response"`
+}
+
+var (
+	TaskManagerObj *TaskManager
+)
+
+func init() {
+	TaskManagerObj = NewTaskManager()
+}
+
+// TaskResult represents the status and details of a task
+type TaskResult struct {
+	Status  string `json:"status"`
+	Message string `json:"message,omitempty"`
+	Error   string `json:"error,omitempty"`
+	File    string `json:"file,omitempty"`
+}
+
+// TaskManager manages the task results
+type TaskManager struct {
+	mu          sync.RWMutex
+	taskResults map[string]*TaskResult
+}
+
+// NewTaskManager creates a new instance of TaskManager
+func NewTaskManager() *TaskManager {
+	return &TaskManager{
+		taskResults: make(map[string]*TaskResult),
+	}
+}
+
+// UpdateTask updates the task result by task ID
+func (tm *TaskManager) UpdateTask(taskID string, result *TaskResult) {
+	tm.mu.Lock()
+	defer tm.mu.Unlock()
+	tm.taskResults[taskID] = result
+}
+
+// GetTask returns the result of a task by ID
+func (tm *TaskManager) GetTask(taskID string) ([]byte, bool) {
+	tm.mu.RLock()
+	defer tm.mu.RUnlock()
+	result, exists := tm.taskResults[taskID]
+	if exists {
+		resultB, _ := json.Marshal(result)
+		return resultB, true
+	}
+	return []byte{}, false
 }
