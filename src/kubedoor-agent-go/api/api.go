@@ -149,7 +149,7 @@ func UpdateImage(objData config.BodyUpdateImageStruct) (responseData map[string]
 
 	utils.Logger.Info("Deployment image updated successfully", zap.String("namespace", namespace), zap.String("deployment", deploymentName), zap.String("newImage", newImage))
 	responseData["success"] = true
-	responseData["message"] = fmt.Sprintf("Deployment %s in namespace %s updated with new images", deploymentName, namespace)
+	responseData["message"] = fmt.Sprintf("Deployment %s in namespace %s updated with new change.md", deploymentName, namespace)
 	return
 }
 
