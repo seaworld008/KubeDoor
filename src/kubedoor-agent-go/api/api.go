@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"kubedoor-agent-go/config"
-	"kubedoor-agent-go/k8sSet"
 	"kubedoor-agent-go/utils" // Import the utils module
 	"log"
 	"net/http"
@@ -24,12 +23,16 @@ func StartAPI() {
 	router.HandleFunc("/api/health", getHealthCheck).Methods("GET")
 	router.HandleFunc("/api/restart", modifyRestart).Methods("POST")
 	router.HandleFunc("/api/scale", modifyScale).Methods("POST")
+	router.HandleFunc("/api/admis", admisMutateHandler).Methods("POST")
+	//router.HandleFunc("/api/admis_switch", admisSwitch).Methods("GET")
 
-	http.Handle("/", router)
+	// HTTPS 证书和密钥文件路径
+	certFile := "/ssl/tls.crt"
+	keyFile := "/ssl/tls.key"
 
 	port := os.Getenv("PODMGR_PORT")
 	if port == "" {
-		port = "80" // Default port for podmgr
+		port = "443" // Default port for podmgr
 	}
 
 	utils.Logger.Info("Starting PodMgr server", zap.String("port", port))
@@ -40,7 +43,8 @@ func StartAPI() {
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 	}
-	if err := server.ListenAndServe(); err != nil {
+	// 启动 HTTPS 服务器
+	if err := server.ListenAndServeTLS(certFile, keyFile); err != nil {
 		utils.Logger.Error("PodMgr server failed to start", zap.Error(err))
 		log.Fatalf("PodMgr server failed to start: %v", err)
 	}
@@ -111,7 +115,7 @@ func UpdateImage(objData config.BodyUpdateImageStruct) (responseData map[string]
 	namespace := objData.Namespace
 
 	// 获取 Deployment 资源
-	deployment, err := k8sSet.KubeClient.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
+	deployment, err := config.KubeClient.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
 	if err != nil {
 		utils.Logger.Error("Failed to get deployment", zap.Error(err), zap.String("namespace", namespace), zap.String("deployment", deploymentName))
 		responseData["error"] = fmt.Sprintf("Failed to get Deployment %s in namespace %s", deploymentName, namespace)
@@ -140,7 +144,7 @@ func UpdateImage(objData config.BodyUpdateImageStruct) (responseData map[string]
 	// 直接更新 Deployment 对象
 	container.Image = newImage
 
-	_, err = k8sSet.KubeClient.AppsV1().Deployments(namespace).Update(ctx, deployment, metav1.UpdateOptions{})
+	_, err = config.KubeClient.AppsV1().Deployments(namespace).Update(ctx, deployment, metav1.UpdateOptions{})
 	if err != nil {
 		utils.Logger.Error("Failed to update deployment", zap.Error(err), zap.String("namespace", namespace), zap.String("deployment", deploymentName))
 		responseData["error"] = fmt.Sprintf("Failed to update Deployment %s in namespace %s", deploymentName, namespace)
@@ -164,7 +168,7 @@ func RestartDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (re
 		namespace := deploymentInfo.Namespace
 		deploymentName := deploymentInfo.DeploymentName
 		// 获取 Deployment
-		deployment, err := k8sSet.KubeClient.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
+		deployment, err := config.KubeClient.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
 		if err != nil {
 			utils.Logger.Error("Failed to get deployment", zap.Error(err),
 				zap.String("namespace", namespace),
@@ -183,7 +187,7 @@ func RestartDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (re
 		deployment.Spec.Template.ObjectMeta.Labels["restartTimestamp"] = newLabelValue
 
 		// 更新 Deployment
-		_, err = k8sSet.KubeClient.AppsV1().Deployments(namespace).Update(ctx, deployment, metav1.UpdateOptions{})
+		_, err = config.KubeClient.AppsV1().Deployments(namespace).Update(ctx, deployment, metav1.UpdateOptions{})
 		if err != nil {
 			utils.Logger.Error("Failed to update deployment for restart", zap.Error(err),
 				zap.String("namespace", namespace),
@@ -227,7 +231,7 @@ func ScaleDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (resp
 		deploymentName := deploymentInfo.DeploymentName
 		replaceNum := int32(deploymentInfo.Num)
 		// 获取 Deployment
-		deployment, err := k8sSet.KubeClient.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
+		deployment, err := config.KubeClient.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
 		if err != nil {
 			utils.Logger.Error("Failed to get deployment", zap.Error(err),
 				zap.String("namespace", namespace),
@@ -244,7 +248,7 @@ func ScaleDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (resp
 		deployment.Spec.Replicas = &replaceNum
 
 		// 更新 Deployment
-		_, err = k8sSet.KubeClient.AppsV1().Deployments(namespace).Update(ctx, deployment, metav1.UpdateOptions{})
+		_, err = config.KubeClient.AppsV1().Deployments(namespace).Update(ctx, deployment, metav1.UpdateOptions{})
 		if err != nil {
 			utils.Logger.Error("Failed to scale deployment", zap.Error(err), zap.String("namespace", namespace), zap.String("deployment", deploymentName))
 			errorDetail := map[string]string{

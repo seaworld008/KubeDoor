@@ -8,25 +8,25 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/remotecommand"
-	"kubedoor-agent-go/k8sSet"
+	"kubedoor-agent-go/config"
 	"os"
 )
 
 func executeCom() {
-	config, err := rest.InClusterConfig()
+	inConfig, err := rest.InClusterConfig()
 	if err != nil {
 		fmt.Println("failed to get in-cluster config: ", err)
 		return
 	}
 	// 执行命令并获取结果
-	_, err = executeCommandInPod(k8sSet.KubeClient, config, "default", "your-pod", "your-container", "ls -l > /a.log")
+	_, err = executeCommandInPod(config.KubeClient, inConfig, "default", "your-pod", "your-container", "ls -l > /a.log")
 	if err != nil {
 		fmt.Println("Error executing command: ", err)
 		return
 	}
 
 	// 下载文件
-	err = downloadFileFromPod(k8sSet.KubeClient, config, "default", "your-pod", "your-container", "/a.log", "./a.log")
+	err = downloadFileFromPod(config.KubeClient, inConfig, "default", "your-pod", "your-container", "/a.log", "./a.log")
 	if err != nil {
 		fmt.Println("Error downloading file: ", err)
 		return

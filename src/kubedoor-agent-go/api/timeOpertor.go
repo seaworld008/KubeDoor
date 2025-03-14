@@ -7,7 +7,6 @@ import (
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"kubedoor-agent-go/config"
-	"kubedoor-agent-go/k8sSet"
 	"kubedoor-agent-go/utils"
 	"time"
 
@@ -93,13 +92,14 @@ func createK8sCronJobForScheduledRestart(services []config.BodyScaleRestartStruc
 										Command: []string{
 											"curl",
 											"-s",
+											"-k",
 											"-X",
 											"POST",
 											"-H",
 											"Content-Type: application/json",
 											"-d",
 											string(jsonData),
-											fmt.Sprintf("http://kubedoor-agent.kubedoor/api/%s", operatorType),
+											fmt.Sprintf("https://kubedoor-agent.kubedoor/api/%s", operatorType),
 										},
 									},
 								},
@@ -110,11 +110,11 @@ func createK8sCronJobForScheduledRestart(services []config.BodyScaleRestartStruc
 			},
 		}
 
-		existingCronJob, err := k8sSet.KubeClient.BatchV1().CronJobs(jobNs).Get(context.TODO(), cronJob.Name, metav1.GetOptions{})
+		existingCronJob, err := config.KubeClient.BatchV1().CronJobs(jobNs).Get(context.TODO(), cronJob.Name, metav1.GetOptions{})
 		if err != nil {
 			if errors.IsNotFound(err) {
 				// 如果 CronJob 不存在，则创建
-				_, err = k8sSet.KubeClient.BatchV1().CronJobs(jobNs).Create(context.TODO(), cronJob, metav1.CreateOptions{})
+				_, err = config.KubeClient.BatchV1().CronJobs(jobNs).Create(context.TODO(), cronJob, metav1.CreateOptions{})
 				if err != nil {
 					utils.Logger.Error("Failed to create Kubernetes CronJob", zap.Error(err))
 					continue
@@ -130,7 +130,7 @@ func createK8sCronJobForScheduledRestart(services []config.BodyScaleRestartStruc
 
 		// 如果 CronJob 已存在，则更新
 		cronJob.ResourceVersion = existingCronJob.ResourceVersion // 重要：保留 ResourceVersion 以防冲突
-		_, err = k8sSet.KubeClient.BatchV1().CronJobs(jobNs).Update(context.TODO(), cronJob, metav1.UpdateOptions{})
+		_, err = config.KubeClient.BatchV1().CronJobs(jobNs).Update(context.TODO(), cronJob, metav1.UpdateOptions{})
 		if err != nil {
 			utils.Logger.Error("Failed to update Kubernetes CronJob", zap.Error(err))
 			continue
@@ -144,7 +144,7 @@ func createK8sCronJobForScheduledRestart(services []config.BodyScaleRestartStruc
 // deleteK8sCronJobForScheduledRestart 执行完定时任务后执行删除操作
 func deleteK8sCronJobForScheduledRestart(cronJobName string) {
 	jobNs := "kubedoor"
-	err := k8sSet.KubeClient.BatchV1().CronJobs(jobNs).Delete(context.TODO(), cronJobName, metav1.DeleteOptions{})
+	err := config.KubeClient.BatchV1().CronJobs(jobNs).Delete(context.TODO(), cronJobName, metav1.DeleteOptions{})
 	if err != nil {
 		utils.Logger.Error("Failed to delete Kubernetes CronJob", zap.String("cronJobName", cronJobName), zap.Error(err))
 		return

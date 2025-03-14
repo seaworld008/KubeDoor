@@ -75,6 +75,7 @@ func StartAgent() {
 			defer conn.Close()
 
 			log.Println("Connected to server")
+			config.WebSocketConcent = conn // 保存连接
 
 			// Start heartbeat goroutine
 			go func() {
@@ -99,7 +100,6 @@ func StartAgent() {
 					log.Println("Read failed:", err)
 					break // Exit request processing loop, reconnect
 				}
-
 				utils.Logger.Debug("Received message:", zap.String("message", string(message)))
 
 				var data config.MessageDataStruct
@@ -112,8 +112,19 @@ func StartAgent() {
 				switch data.MessageType {
 				case "request":
 					go handleMessage(conn, data)
+				case "admis":
+					utils.Logger.Info("data.MessageType admis", zap.String("message", string(message)))
+					var admisRequestResult config.AdmisRequestResultObj
+					if err = json.Unmarshal(message, &admisRequestResult); err != nil {
+						utils.Logger.Error("admisRequestResult.RequestId ", zap.String("requestId", admisRequestResult.RequestId))
+						return // 提前返回避免继续执行
+					}
+					utils.Logger.Info("abcd.RequestId ", zap.String("requestId", admisRequestResult.RequestId))
+					requestRes, _ := config.RequestFutures.Get(admisRequestResult.RequestId)
+					requestRes <- admisRequestResult.DeployRes
+					config.RequestFutures.Set(admisRequestResult.RequestId, requestRes)
 				default:
-					utils.Logger.Warn("Unknown message type", zap.String("type", fmt.Sprintf("%s", data.MessageType)))
+					utils.Logger.Warn("Unknown message type message", zap.String("type", fmt.Sprintf("%s", data.MessageType)), zap.String("message", string(message)))
 				}
 			}
 

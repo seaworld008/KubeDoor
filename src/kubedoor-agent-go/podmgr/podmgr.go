@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"kubedoor-agent-go/config"
-	"kubedoor-agent-go/k8sSet"
 	"kubedoor-agent-go/utils" // Use module import path
 	"log"
 	"os"
@@ -90,7 +89,7 @@ func ModifyPod(queryData map[string]interface{}) (response map[string]interface{
 func modifyPodLabel(ctx context.Context, ns string, podName string) (bool, string) {
 	utils.Logger.Info("===开始修改标签", zap.String("namespace", ns), zap.String("podName", podName))
 
-	podData, err := k8sSet.KubeClient.CoreV1().Pods(ns).Get(ctx, podName, metav1.GetOptions{})
+	podData, err := config.KubeClient.CoreV1().Pods(ns).Get(ctx, podName, metav1.GetOptions{})
 	if err != nil {
 		utils.Logger.Error("Failed to get pod", zap.Error(err), zap.String("namespace", ns), zap.String("podName", podName))
 		return false, "===pod_not_found"
@@ -112,7 +111,7 @@ func modifyPodLabel(ctx context.Context, ns string, podName string) (bool, strin
 	currentLabels[isolateLabel] = newLabelValue
 
 	podData.ObjectMeta.Labels = currentLabels
-	_, err = k8sSet.KubeClient.CoreV1().Pods(ns).Patch(ctx, podName, types.MergePatchType, []byte(fmt.Sprintf(`{"metadata":{"labels":{"%s":"%s"}}}`, isolateLabel, newLabelValue)), metav1.PatchOptions{})
+	_, err = config.KubeClient.CoreV1().Pods(ns).Patch(ctx, podName, types.MergePatchType, []byte(fmt.Sprintf(`{"metadata":{"labels":{"%s":"%s"}}}`, isolateLabel, newLabelValue)), metav1.PatchOptions{})
 	if err != nil {
 		utils.Logger.Error("Failed to patch pod label", zap.Error(err), zap.String("namespace", ns), zap.String("podName", podName))
 		return false, "===modify_label_failed"
@@ -155,7 +154,7 @@ func DeletePodHandler(queryData map[string]interface{}) (response map[string]int
 
 func deletePod(ns string, podName string) bool {
 
-	err := k8sSet.KubeClient.CoreV1().Pods(ns).Delete(context.TODO(), podName, metav1.DeleteOptions{})
+	err := config.KubeClient.CoreV1().Pods(ns).Delete(context.TODO(), podName, metav1.DeleteOptions{})
 	if err != nil {
 		log.Printf("Error deleting pod: %v", err)
 		return false

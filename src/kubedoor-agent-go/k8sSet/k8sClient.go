@@ -5,17 +5,16 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"kubedoor-agent-go/config"
 	"kubedoor-agent-go/utils"
 
 	"log"
 	"os"
 )
 
-var KubeClient *kubernetes.Clientset
-
 func init() {
 	utils.InitLogger() // Initialize logger
-	KubeClient = initKubeClient()
+	config.KubeClient = initKubeClient()
 }
 
 func initKubeClient() *kubernetes.Clientset {

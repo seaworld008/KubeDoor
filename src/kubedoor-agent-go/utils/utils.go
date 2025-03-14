@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"go.uber.org/zap"
 	"kubedoor-agent-go/asset"
 	"net/http"
-
-	"go.uber.org/zap"
 )
 
-var Logger *zap.Logger
+var (
+	Logger *zap.Logger
+)
 
 func Wecom(webhook, content string) string {
 	wecomWebhook := "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=" + webhook

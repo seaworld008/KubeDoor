@@ -88,6 +88,9 @@ func handleMessage(conn *websocket.Conn, data config.MessageDataStruct) {
 			utils.Logger.Error("Failed to unmarshal body", zap.Error(err))
 		}
 		response = api.ScheduleServiceScaleRestart(bodyMap["type"].(string), body)
+	case "/api/admis_switch":
+		utils.Logger.Info("api.AdmisSwitch:", zap.Any("query", data.Query))
+		response = api.AdmisSwitch(data.Query)
 	case "/api/pod/modify_pod":
 		utils.Logger.Info("podmgr.ModifyPod:", zap.Any("query", data.Query))
 		response = podmgr.ModifyPod(data.Query)
