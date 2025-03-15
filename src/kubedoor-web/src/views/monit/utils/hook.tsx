@@ -4,7 +4,12 @@ import scale from "../scale/index.vue";
 import { message } from "@/utils/message";
 import { addDialog } from "@/components/ReDialog";
 import { deviceDetection } from "@pureadmin/utils";
-import { execCapacity, execTimeCron, rebootResource } from "@/api/resource";
+import {
+  execCapacity,
+  execTimeCron,
+  rebootResource,
+  updateImage
+} from "@/api/resource";
 import { updatePodCount } from "@/api/monit";
 import { h, ref } from "vue";
 import { transformI18n } from "@/plugins/i18n";
@@ -192,8 +197,25 @@ export function useResource() {
     });
   }
 
+  function onUpdateImage(env: string, data: any) {
+    return new Promise(async resolve => {
+      const res = await updateImage(env, data);
+      if ((res as any).success) {
+        message(transformI18n((res as any).message), {
+          type: "success"
+        });
+        resolve(true);
+      } else {
+        message((res as any).message, {
+          type: "error"
+        });
+      }
+    });
+  }
+
   return {
     onChangeCapacity,
-    onReboot
+    onReboot,
+    onUpdateImage
   };
 }

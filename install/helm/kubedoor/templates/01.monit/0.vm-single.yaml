@@ -1,3 +1,4 @@
+{{- if .Values.kubedoor.master.enable }}
 {{- if eq .Values.tsdb.type "KubeDoor" }}
 apiVersion: apps/v1
 kind: Deployment
@@ -68,4 +69,5 @@ spec:
     requests:
       storage: {{ .Values.monit.vm_single.storage }}
   storageClassName: {{ .Values.monit.vm_single.storageClass }}
+{{- end }}
 {{- end }}

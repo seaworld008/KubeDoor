@@ -180,3 +180,9 @@ export const rebootResource = (env: string, data: any[], interval?: number) => {
 //     data
 //   });
 // };
+
+export const updateImage = (env: string, data: any) => {
+  return http.request<ResultTable>("post", `/api/update-image?env=${env}`, {
+    data
+  });
+};

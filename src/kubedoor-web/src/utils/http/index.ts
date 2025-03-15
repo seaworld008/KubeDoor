@@ -137,7 +137,7 @@ class PureHttp {
         return response.data;
       },
       (error: PureHttpError) => {
-        console.log(error.response.data);
+        console.log(error.response);
         switch (error.response.status) {
           case 404:
             message((error.response.data as string) || "404: 未找到资源", {

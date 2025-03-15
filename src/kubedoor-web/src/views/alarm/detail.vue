@@ -142,7 +142,49 @@
 
             <el-col :span="4">
               <el-form-item>
-                <el-button type="primary" @click="handleSearch">搜索</el-button>
+                <el-tooltip
+                  effect="dark"
+                  :content="
+                    autoRefreshInterval === 0
+                      ? `自动刷新已关闭`
+                      : '设置自动刷新间隔'
+                  "
+                  placement="top"
+                >
+                  <el-button-group style="margin-right: 8px">
+                    <el-button type="primary" @click="handleSearch">
+                      <el-icon style="margin-right: 4px"
+                        ><RefreshRight
+                      /></el-icon>
+                      刷新
+                    </el-button>
+                    <el-dropdown
+                      trigger="click"
+                      @command="handleRefreshIntervalChange"
+                    >
+                      <el-button type="primary">
+                        {{
+                          autoRefreshInterval === 0
+                            ? ""
+                            : autoRefreshInterval + "s"
+                        }}
+                        <el-icon style="margin-left: 4px"
+                          ><ArrowDown
+                        /></el-icon>
+                      </el-button>
+
+                      <template #dropdown>
+                        <el-dropdown-menu>
+                          <el-dropdown-item :command="0">关</el-dropdown-item>
+                          <el-dropdown-item :command="15">15s</el-dropdown-item>
+                          <el-dropdown-item :command="30">30s</el-dropdown-item>
+                          <el-dropdown-item :command="60">1m</el-dropdown-item>
+                          <el-dropdown-item :command="300">5m</el-dropdown-item>
+                        </el-dropdown-menu>
+                      </template>
+                    </el-dropdown>
+                  </el-button-group></el-tooltip
+                >
                 <el-button @click="handleReset">重置</el-button>
               </el-form-item>
             </el-col>
@@ -154,13 +196,12 @@
     <!-- 详情内容 -->
     <div class="content">
       <el-card v-loading="loading">
-        <!-- <template #header>
-          <div class="card-header">
-            <span>{{ route.query.alertName }}</span>
-          </div>
-        </template> -->
-
-        <el-table :data="tableData" style="width: 100%" stripe>
+        <el-table
+          :data="tableData"
+          style="width: 100%"
+          stripe
+          @sort-change="handleSortChange"
+        >
           <el-table-column
             prop="env"
             label="K8S"
@@ -230,7 +271,7 @@
             label="末次告警/恢复时间"
             min-width="180"
             align="center"
-            sortable
+            sortable="custom"
           >
             <template #default="scope">
               <el-tooltip
@@ -248,7 +289,22 @@
           </el-table-column>
 
           <!-- 告警与恢复次数 -->
-          <el-table-column label="告警/恢复" align="center" width="120">
+          <el-table-column
+            label="告警/恢复"
+            align="center"
+            width="120"
+            sortable="custom"
+            prop="count_firing"
+          >
+            <template #header>
+              <el-tooltip
+                effect="dark"
+                content="点击按告警次数排序"
+                placement="top"
+              >
+                <span>告警/恢复</span>
+              </el-tooltip>
+            </template>
             <template #default="scope">
               <el-tooltip
                 effect="dark"
@@ -393,8 +449,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import {
+  VideoPlay,
+  VideoPause,
+  Timer,
+  RefreshRight
+} from "@element-plus/icons-vue";
 import {
   getAlarmDetail,
   getAlarmDetailTotal,
@@ -549,6 +611,39 @@ const handleSearch = async () => {
   currentPage.value = 1;
   await fetchTotal();
   getDetailData();
+};
+
+// 处理排序变化
+const handleSortChange = ({
+  prop,
+  order
+}: {
+  prop: string;
+  order: string | null;
+}) => {
+  if (prop === "end_time") {
+    tableData.value.sort((a, b) => {
+      const aTime = a.end_time || "-";
+      const bTime = b.end_time || "-";
+      if (aTime === "-" && bTime === "-") return 0;
+      if (aTime === "-") return order === "ascending" ? -1 : 1;
+      if (bTime === "-") return order === "ascending" ? 1 : -1;
+      return order === "ascending"
+        ? aTime.localeCompare(bTime)
+        : bTime.localeCompare(aTime);
+    });
+    return;
+  }
+  if (prop === "count_firing") {
+    tableData.value.sort((a, b) => {
+      if (order === "ascending") {
+        return a.count_firing - b.count_firing;
+      } else if (order === "descending") {
+        return b.count_firing - a.count_firing;
+      }
+      return 0;
+    });
+  }
 };
 
 // 处理重置
@@ -776,10 +871,44 @@ const handleCopyAndClose = () => {
   // }
 };
 
+// 自动刷新相关
+const autoRefreshInterval = ref(0); // 默认15秒
+let refreshTimer: ReturnType<typeof setInterval> | null = null;
+
+// 开始自动刷新
+const startAutoRefresh = () => {
+  stopAutoRefresh(); // 先清除可能存在的定时器
+  refreshTimer = setInterval(() => {
+    handleSearch();
+  }, autoRefreshInterval.value * 1000);
+};
+
+// 停止自动刷新
+const stopAutoRefresh = () => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+};
+
+// 处理刷新间隔变化
+const handleRefreshIntervalChange = (interval: number) => {
+  autoRefreshInterval.value = interval;
+  if (autoRefreshInterval.value) {
+    startAutoRefresh(); // 重启定时器以应用新间隔
+  } else {
+    stopAutoRefresh();
+  }
+};
+
 onMounted(() => {
   getEnvOptions();
   getAlertNameOptions();
   handleSearch();
+});
+
+onUnmounted(() => {
+  stopAutoRefresh(); // 组件卸载时清除定时器
 });
 </script>
 

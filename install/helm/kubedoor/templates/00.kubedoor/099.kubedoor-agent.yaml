@@ -137,7 +137,11 @@ spec:
     spec:
       containers:
         - name: kubedoor-agent
+          {{- if eq .Values.image.agent_build "go" }}
+          image: {{ .Values.image.repository }}/kubedoor-agent:{{ .Values.image.kubedoor_agent_go_tag }}
+          {{- else }}
           image: {{ .Values.image.repository }}/kubedoor-agent:{{ .Values.image.kubedoor_agent_tag }}
+          {{- end }}
           envFrom:
             - configMapRef:
                 name: kubedoor-agent-config
@@ -154,8 +158,8 @@ spec:
           livenessProbe:
             httpGet:
               path: /api/health
-              port: 80
-              scheme: HTTP
+              port: 443
+              scheme: HTTPS
             timeoutSeconds: 2
             periodSeconds: 10
             successThreshold: 1
@@ -163,8 +167,8 @@ spec:
           readinessProbe:
             httpGet:
               path: /api/health
-              port: 80
-              scheme: HTTP
+              port: 443
+              scheme: HTTPS
             timeoutSeconds: 2
             periodSeconds: 10
             successThreshold: 1
@@ -188,10 +192,10 @@ metadata:
     app: kubedoor-agent
 spec:
   ports:
-    - name: http
+    - name: https
       protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 443
+      targetPort: 443
   selector:
     app: kubedoor-agent
   type: ClusterIP 
