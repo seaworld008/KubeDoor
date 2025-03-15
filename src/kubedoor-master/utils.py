@@ -316,6 +316,35 @@ def ck_agent_info():
     return agent_info
 
 
+def get_deploy_admis(env, namespace, deployment):
+    """从ck中读取agent的信息"""
+    try:
+        result = ckclient.execute(
+            f"""SELECT 1 FROM k8s_agent_status where env = '{env}' and admission = 1 and admission_namespace like '%"{namespace}"%'"""
+        )
+        if result:
+            query = (
+                f"SELECT pod_count, pod_count_ai, pod_count_manual, request_cpu_m, request_mem_mb, limit_cpu_m, limit_mem_mb "
+                f"FROM k8s_res_control "
+                f"WHERE env='{env}' AND namespace='{namespace}' "
+                f"AND deployment='{deployment}'"
+            )
+            deploy_res = ckclient.execute(query)
+            if deploy_res:
+                logger.info(f"admis:【{env}】【{namespace}】【{deployment}】{deploy_res}")
+                return deploy_res[0]
+            else:
+                content = f"admis:【{env}】【{namespace}】【{deployment}】部署失败: 数据库中找不到该服务，请先新增服务"
+                logger.warning(content)
+                return [404, '数据库中找不到该服务，请先新增服务']
+        else:
+            return [200, '非管控命名空间，直接放行']
+    except ServerException as e:
+        content = f"admis:【{env}】【{namespace}】【{deployment}】查询数据库失败：{e}"
+        logger.error(content)
+        return [503, '查询数据库异常']
+
+
 def send_msg(content):
     response = ""
     if MSG_TYPE == "wecom":
@@ -394,7 +423,7 @@ def get_list_from_resources(env_value):
             GROUP BY `date`
             order by SUM(pod_count * p95_pod_load) desc
             limit 1
-        )
+        ) and env = '{env_value}'
     """
     result = ckclient.execute(query)
     ckclient.disconnect()
@@ -508,7 +537,6 @@ def update_control_data(metrics_list_ck):
                         env = '{env}' and namespace = '{namespace}' and deployment = '{deployment}'
                 """
                 update_data = ckclient.execute(update_sql)
-                return True
             except Exception as e:
                 logger.exception("Failed to execute {}: {}", update_sql, e)
                 ckclient.disconnect()
@@ -521,9 +549,9 @@ def update_control_data(metrics_list_ck):
             try:
                 tmp = parse_insert_data(i)
                 ckclient.execute("INSERT INTO k8s_res_control VALUES", [tuple(tmp)], types_check=True)
-                return True
             except Exception as e:
                 logger.exception("Failed to insert {}: {}", [tuple(tmp)], e)
                 ckclient.disconnect()
                 return False
     ckclient.disconnect()
+    return True

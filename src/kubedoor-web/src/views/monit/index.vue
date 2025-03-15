@@ -60,6 +60,30 @@
     </div>
 
     <!-- 表格数据 -->
+    <!-- 更新弹窗 -->
+    <el-dialog v-model="updateDialogVisible" title="更新镜像" width="500px">
+      <el-form :model="updateForm" label-width="80px">
+        <el-form-item label="镜像标签">
+          <el-input
+            v-model="updateForm.imageTag"
+            placeholder="请输入镜像标签"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="updateDialogVisible = false">取消</el-button>
+          <el-button
+            type="primary"
+            :loading="updateLoading"
+            @click="handleUpdate"
+          >
+            确定
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
     <div class="mt-2">
       <el-card v-loading="loading">
         <el-table
@@ -220,6 +244,9 @@
                     <el-dropdown-item @click="onReboot(scope.row)"
                       >重启</el-dropdown-item
                     >
+                    <el-dropdown-item @click="openUpdateDialog(scope.row)"
+                      >更新</el-dropdown-item
+                    >
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
@@ -238,7 +265,7 @@ import { ArrowDown } from "@element-plus/icons-vue";
 import { getPromEnv, getPromNamespace, getPromQueryData } from "@/api/monit";
 import { useResource } from "./utils/hook";
 
-const { onChangeCapacity, onReboot } = useResource();
+const { onChangeCapacity, onReboot, onUpdateImage } = useResource();
 
 // 定义表单数据
 const searchForm = reactive({
@@ -269,6 +296,40 @@ const filteredTableData = computed(() => {
 
 // 加载状态
 const loading = ref(false);
+
+// 更新弹窗相关
+const updateDialogVisible = ref(false);
+const updateLoading = ref(false);
+const selectedDeployment = ref<any>(null);
+const updateForm = reactive({
+  imageTag: ""
+});
+
+const openUpdateDialog = (row: any) => {
+  selectedDeployment.value = row;
+  updateForm.imageTag = "";
+  updateDialogVisible.value = true;
+};
+
+const handleUpdate = async () => {
+  if (!updateForm.imageTag) {
+    ElMessage.warning("请输入镜像标签");
+    return;
+  }
+
+  updateLoading.value = true;
+  try {
+    await onUpdateImage(selectedDeployment.value.env, {
+      deployment: selectedDeployment.value.deployment,
+      namespace: selectedDeployment.value.namespace,
+      image_tag: updateForm.imageTag
+    });
+    updateDialogVisible.value = false;
+    handleSearch();
+  } finally {
+    updateLoading.value = false;
+  }
+};
 
 // 获取K8S环境列表
 const getEnvOptions = async (): Promise<void> => {
@@ -384,5 +445,11 @@ onMounted(async () => {
 
 .el-form-item {
   margin-bottom: 18px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 </style>

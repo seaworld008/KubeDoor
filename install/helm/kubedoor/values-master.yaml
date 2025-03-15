@@ -8,9 +8,6 @@ kubedoor:
     enable: true
   dash:
     enable: true
-  webhook:
-    enable: true
-
 
 clickhouse:
   enable: true # enable为true时，表示自动新安装clickhouse单机版到kubedoor命名空间内。

@@ -2,42 +2,90 @@
   <div class="alarm-container">
     <!-- 搜索框 -->
     <div class="search-section">
-      <el-form :inline="true" style="margin-bottom: -18px">
-        <el-form-item label="开始时间">
-          <el-select
-            v-model="timeRange"
-            placeholder="选择时间范围"
-            style="width: 200px"
-            @change="handleTimeRangeChange"
-          >
-            <el-option label="今天" :value="0" />
-            <el-option label="最近1天" :value="1" />
-            <el-option label="最近3天" :value="3" />
-            <el-option label="最近5天" :value="5" />
-            <el-option label="最近7天" :value="7" />
-            <el-option label="最近15天" :value="15" />
-            <el-option label="最近30天" :value="30" />
-          </el-select>
-        </el-form-item>
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+        "
+      >
+        <el-form :inline="true" style="margin-bottom: -18px">
+          <el-form-item label="开始时间">
+            <el-select
+              v-model="timeRange"
+              placeholder="选择时间范围"
+              style="width: 200px"
+              @change="handleTimeRangeChange"
+            >
+              <el-option label="今天" :value="0" />
+              <el-option label="最近1天" :value="1" />
+              <el-option label="最近3天" :value="3" />
+              <el-option label="最近5天" :value="5" />
+              <el-option label="最近7天" :value="7" />
+              <el-option label="最近15天" :value="15" />
+              <el-option label="最近30天" :value="30" />
+            </el-select>
+          </el-form-item>
 
-        <el-form-item label="K8S">
-          <el-select
-            v-model="queryParams.env"
-            placeholder="请选择环境"
-            filterable
-            clearable
-            style="width: 200px"
-            @change="getAlarmData"
-          >
-            <el-option
-              v-for="item in envOptions"
-              :key="item"
-              :label="item"
-              :value="item"
-            />
-          </el-select>
-        </el-form-item>
-      </el-form>
+          <el-form-item label="K8S">
+            <el-select
+              v-model="queryParams.env"
+              placeholder="请选择环境"
+              filterable
+              clearable
+              style="width: 200px"
+              @change="getAlarmData"
+            >
+              <el-option
+                v-for="item in envOptions"
+                :key="item"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
+          </el-form-item>
+
+          <el-form-item>
+            <el-checkbox
+              v-model="hideZeroAlerts"
+              @change="handleHideZeroChange"
+            >
+              隐藏0告警
+            </el-checkbox>
+          </el-form-item>
+        </el-form>
+
+        <el-tooltip
+          effect="dark"
+          :content="
+            autoRefreshInterval === 0 ? `自动刷新已关闭` : '设置自动刷新间隔'
+          "
+          placement="top"
+        >
+          <el-button-group>
+            <el-button @click="getAlarmData()">
+              <el-icon style="margin-right: 4px"><RefreshRight /></el-icon>
+              刷新
+            </el-button>
+            <el-dropdown trigger="click" @command="handleRefreshIntervalChange">
+              <el-button>
+                {{ autoRefreshInterval === 0 ? "" : autoRefreshInterval + "s" }}
+                <el-icon style="margin-left: 4px"><ArrowDown /></el-icon>
+              </el-button>
+
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item :command="0">关</el-dropdown-item>
+                  <el-dropdown-item :command="15">15s</el-dropdown-item>
+                  <el-dropdown-item :command="30">30s</el-dropdown-item>
+                  <el-dropdown-item :command="60">1m</el-dropdown-item>
+                  <el-dropdown-item :command="300">5m</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </el-button-group>
+        </el-tooltip>
+      </div>
     </div>
 
     <!-- 统计卡片 -->
@@ -84,20 +132,58 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from "vue";
+import { ref, reactive, onMounted, watch, onUnmounted } from "vue";
 import { getAlarmTotal, getEnv } from "@/api/alarm";
 import { useRouter } from "vue-router";
+import { RefreshRight, ArrowDown } from "@element-plus/icons-vue";
 import dayjs from "dayjs";
 
 const router = useRouter();
 const loading = ref(false);
 const statistics = ref([]);
 
+// 自动刷新相关
+const autoRefreshInterval = ref(0); // 默认关闭
+let refreshTimer: ReturnType<typeof setInterval> | null = null;
+
+// 开始自动刷新
+const startAutoRefresh = () => {
+  stopAutoRefresh(); // 先清除可能存在的定时器
+  refreshTimer = setInterval(() => {
+    getAlarmData();
+  }, autoRefreshInterval.value * 1000);
+};
+
+// 停止自动刷新
+const stopAutoRefresh = () => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+};
+
+// 处理刷新间隔变化
+const handleRefreshIntervalChange = (interval: number) => {
+  autoRefreshInterval.value = interval;
+  if (autoRefreshInterval.value) {
+    startAutoRefresh(); // 重启定时器以应用新间隔
+  } else {
+    stopAutoRefresh();
+  }
+};
+
 // 环境选项
 const envOptions = ref<string[]>([]);
 
 // 查询参数
 const timeRange = ref<number | null>(0);
+const hideZeroAlerts = ref(false);
+
+// 处理隐藏0告警状态变化
+const handleHideZeroChange = (val: boolean) => {
+  getAlarmData();
+};
+
 const queryParams = reactive({
   startTime: dayjs().startOf("day").format("YYYY-MM-DD HH:mm:ss"),
   env: undefined as string | undefined
@@ -170,6 +256,11 @@ const getAlarmData = async (data?: Partial<typeof queryParams>) => {
     console.log(queryParams);
     const res = await getAlarmTotal(queryParams.env, queryParams.startTime);
     statistics.value = res.data;
+
+    // 如果勾选了隐藏0告警，过滤掉告警数为0的项
+    if (hideZeroAlerts.value) {
+      statistics.value = statistics.value.filter((stat: any) => stat[2] > 0);
+    }
   } catch (error) {
     console.error("获取告警统计数据失败:", error);
   } finally {
@@ -193,6 +284,10 @@ const getEnvOptions = async () => {
 onMounted(async () => {
   await getEnvOptions();
   getAlarmData();
+});
+
+onUnmounted(() => {
+  stopAutoRefresh(); // 组件卸载时清除定时器
 });
 </script>
 

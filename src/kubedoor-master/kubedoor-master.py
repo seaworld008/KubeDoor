@@ -26,10 +26,12 @@ async def get_authorization_header(username, password):
 
 async def forward_request(request):
     try:
-        data = await request.read()
-        data = data.replace(b'__KUBEDOORDB__', utils.CK_DATABASE.encode())
-        logger.info(str(data))
-
+        data = await request.text()
+        data = data.replace('__KUBEDOORDB__', utils.CK_DATABASE)
+        logger.info(data)
+        permission = request.headers.get('X-User-Permission', '')
+        if permission == 'read' and not data.strip().lower().startswith('select'):
+            return web.Response(status=403)
         TARGET_URL = f'http://{utils.CK_HOST}:{utils.CK_HTTP_PORT}/?add_http_cors_header=1&default_format=JSONCompact'
         headers = {
             'Authorization': await get_authorization_header(utils.CK_USER, utils.CK_PASSWORD),
@@ -87,7 +89,15 @@ async def websocket_handler(request):
                     # 更新心跳时间
                     clients[env]["last_heartbeat"] = time.time()
                     clients[env]["online"] = True
-                    logger.info(f"[心跳]客户端 env={env} ver={ver}")
+                    # logger.info(f"[心跳]客户端 env={env} ver={ver}")
+                elif data.get("type") == "admis":
+                    request_id = data["request_id"]
+                    namespace = data["namespace"]
+                    deployment = data["deployment"]
+                    logger.info(f"==========客户端 env={env} {request_id} {namespace} {deployment}")
+                    deploy_res = utils.get_deploy_admis(env, namespace, deployment)
+                    await ws.send_json({"type": "admis", "request_id": request_id, "deploy_res": deploy_res})
+
                 elif data.get("type") == "response":
                     # 收到客户端的响应，存储到客户端的响应队列中
                     request_id = data["request_id"]

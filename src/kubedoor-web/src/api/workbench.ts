@@ -3,6 +3,7 @@ import { http } from "@/utils/http";
 type Result = {
   success: boolean;
   data: Array<any>;
+  message?: string;
 };
 
 export const initByDays = (days: number, env: string) => {
@@ -17,6 +18,29 @@ export const initByDays = (days: number, env: string) => {
 export const whSwitch = (action: string, env: string) => {
   return http.request<Result>("get", `/api/webhook_switch?env=${env}`, {
     params: { action }
+  });
+};
+
+export const admisSwitch = (action: string, env: string) => {
+  return http.request<Result>("get", `/api/admis_switch?env=${env}`, {
+    params: { action }
+  });
+};
+
+export const updateAdmission = (
+  env: string,
+  admission: boolean,
+  admission_namespace: string
+) => {
+  return http.request<any>("post", "/api/sql", {
+    params: {
+      add_http_cors_header: 1,
+      default_format: "JSONCompact"
+    },
+    data: `ALTER TABLE __KUBEDOORDB__.k8s_agent_status UPDATE admission=${admission ? 1 : 0}, admission_namespace='${admission_namespace}' WHERE env='${env}'`,
+    headers: {
+      "Content-Type": "text/plain;charset=UTF-8"
+    }
   });
 };
 

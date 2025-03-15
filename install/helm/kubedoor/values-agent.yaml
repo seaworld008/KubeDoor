@@ -31,11 +31,11 @@ tsdb:
   external_labels_value: "my-test-k8s"
 
 
-# 【注意】如果您当前K8S已经有完整的Prometheus/vmagent监控，并且是远程写入时序数据库，那么只需要kubedoor-master上配置您的时序数据库信息即可，remoteWriteUrl不用管，并且请把以下所有的enable都设置为false，将不会安装false的组件。
+# 【注意】如果您当前K8S已经有完整的Prometheus/vmagent监控，并且是远程写入时序数据库，那么只需要在kubedoor-master配置您的时序数据库信息即可，remoteWriteUrl不用管，并且请把以下所有的enable都设置为false，将不会安装false的组件。
 #  详细请参考：https://github.com/CassInfra/KubeDoor/blob/main/docs/灵活部署方案.md#3-接入部署已经有完整的多k8s监控系统
 
   #【当您需要kubedoor为您安装vmagent时，才需要填写以下地址】注意:Victoria-Metrics-Cluster地址格式：http://你的vminsert地址:8480/insert/0/prometheus
-  remoteWriteUrl: "http://monit:dduF1E3sj@victoria-metrics.kubedoor:8428/api/v1/write" # 如果您是使用的kubeDoor安装的Victoria-Metrics，并且当前安装的agent和master在同一个K8S时，可以直接使用该地址。否则，请填写您的Victoria-Metrics远程写地址，注意单机的vm的账号密码。
+  remoteWriteUrl: "http://monit:dduF1E3sj@victoria-metrics.kubedoor:8428/api/v1/write" # 如果您是使用的kubeDoor安装的Victoria-Metrics，并且当前安装的agent和master在同一个K8S时，【可以直接使用该地址】。否则，请填写您的Victoria-Metrics远程写地址，注意单机的vm的账号密码。
 
 
 monit:

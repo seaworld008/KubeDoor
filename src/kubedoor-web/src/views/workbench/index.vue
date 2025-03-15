@@ -12,7 +12,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
+          <el-button type="primary" @click="handleSearch">刷新</el-button>
           <el-button @click="handleReset">重置</el-button>
         </el-form-item>
       </el-form>
@@ -63,10 +63,22 @@
             show-overflow-tooltip
             sortable
           />
+          <el-table-column label="更新" min-width="80" align="center">
+            <template #default="scope">
+              <el-button
+                type="primary"
+                size="small"
+                plain
+                @click="handleUpdate(scope.row)"
+              >
+                更新
+              </el-button>
+            </template>
+          </el-table-column>
           <el-table-column
             prop="collect"
             label="自动采集"
-            min-width="100"
+            min-width="80"
             align="center"
             sortable
           >
@@ -87,7 +99,7 @@
             show-overflow-tooltip
             sortable
           />
-          <el-table-column label="采集历史数据" min-width="120" align="center">
+          <el-table-column label="采集历史数据" min-width="100" align="center">
             <template #default="scope">
               <el-button
                 type="primary"
@@ -100,6 +112,29 @@
               </el-button>
             </template>
           </el-table-column>
+          <el-table-column
+            prop="admission"
+            label="准入控制"
+            min-width="80"
+            align="center"
+            sortable
+          >
+            <template #default="scope">
+              <el-switch
+                v-model="scope.row.admission"
+                :active-value="true"
+                :inactive-value="false"
+                @change="val => handleAdmissionChange(!!val, scope.row)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="admission_namespace"
+            label="管控命名空间"
+            min-width="100"
+            align="center"
+            show-overflow-tooltip
+          />
         </el-table>
       </el-card>
     </div>
@@ -191,17 +226,88 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- 准入控制对话框 -->
+    <el-dialog v-model="admissionDialogVisible" title="准入控制" width="500px">
+      <el-form :model="admissionForm" label-width="80px">
+        <el-form-item label="K8S环境">
+          <el-input v-model="admissionForm.env" disabled />
+        </el-form-item>
+        <el-form-item label="命名空间">
+          <el-select
+            v-model="admissionForm.namespace"
+            multiple
+            filterable
+            collapse-tags-tooltip
+            placeholder="请选择命名空间"
+            style="width: 100%"
+          >
+            <el-option
+              v-for="item in namespaceOptions"
+              :key="item"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="handleCancelAdmission">取消</el-button>
+          <el-button
+            type="primary"
+            :loading="admissionLoading"
+            @click="submitAdmission"
+          >
+            确认
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
+
+    <!-- 更新对话框 -->
+    <el-dialog v-model="updateDialogVisible" title="更新镜像" width="500px">
+      <el-form :model="updateForm" label-width="80px">
+        <el-form-item label="镜像标签">
+          <el-input
+            v-model="updateForm.image_tag"
+            placeholder="请输入镜像标签"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="updateDialogVisible = false">取消</el-button>
+          <el-button
+            type="primary"
+            :loading="updateLoading"
+            @click="submitUpdate"
+          >
+            确认
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from "vue";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import {
   getAgentStatus,
   initPeakData,
-  updateAgentCollect
+  updateAgentCollect,
+  admisSwitch,
+  updateAdmission
 } from "@/api/workbench";
+
+import { updateImage } from "@/api/resource";
+
+import { getPromNamespace } from "@/api/monit";
+
+import { message } from "@/utils/message";
+import { transformI18n } from "@/plugins/i18n";
 
 // 定义Agent数据类型
 interface AgentData {
@@ -211,6 +317,8 @@ interface AgentData {
   ver: string;
   collect: boolean;
   peak_hours: string;
+  admission: boolean;
+  admission_namespace: string;
 }
 
 // 搜索表单
@@ -222,6 +330,8 @@ const searchForm = reactive({
 const tableData = ref<AgentData[]>([]);
 const loading = ref(false);
 
+const namespaceOptions = ref<string[]>([]);
+
 // 根据关键字过滤表格数据
 const filteredTableData = computed(() => {
   if (!searchForm.keyword) {
@@ -232,6 +342,23 @@ const filteredTableData = computed(() => {
     return item.key.toLowerCase().includes(keyword);
   });
 });
+
+const loadNamespaceOptions = async (env: string) => {
+  try {
+    const { data } = await getPromNamespace(env);
+    if (data && Array.isArray(data)) {
+      namespaceOptions.value = data.filter(
+        ns => ns !== "kube-system" && ns !== "kubedoor"
+      );
+    } else {
+      namespaceOptions.value = [];
+    }
+  } catch (error) {
+    console.error("获取命名空间列表失败:", error);
+    ElMessage.error("获取命名空间列表失败");
+    namespaceOptions.value = [];
+  }
+};
 
 // 获取Agent状态数据
 const getAgentData = async () => {
@@ -245,7 +372,9 @@ const getAgentData = async () => {
         last_heartbeat: data[key].last_heartbeat || "",
         ver: data[key].ver || "",
         collect: !!data[key].collect || false,
-        peak_hours: data[key].peak_hours || ""
+        peak_hours: data[key].peak_hours || "",
+        admission: !!data[key].admission || false,
+        admission_namespace: data[key].admission_namespace || ""
       }));
     } else {
       tableData.value = [];
@@ -261,12 +390,13 @@ const getAgentData = async () => {
 
 // 处理搜索
 const handleSearch = () => {
-  // 搜索逻辑已通过计算属性实现
+  getAgentData();
 };
 
 // 处理重置
 const handleReset = () => {
   searchForm.keyword = "";
+  getAgentData();
 };
 
 // 采集历史数据对话框
@@ -345,7 +475,7 @@ const submitCollectConfig = async () => {
     );
 
     // 等待1秒后显示成功消息
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // await new Promise(resolve => setTimeout(resolve, 1000));
 
     // 更新表格中对应行的数据
     const rowIndex = tableData.value.findIndex(
@@ -365,6 +495,141 @@ const submitCollectConfig = async () => {
     ElMessage.error("配置自动采集失败");
   } finally {
     collectConfigLoading.value = false;
+  }
+};
+
+// 准入控制对话框
+const admissionDialogVisible = ref(false);
+const admissionForm = reactive({
+  env: "",
+  admission: false,
+  namespace: []
+});
+const admissionLoading = ref(false);
+
+// 处理准入控制状态变更
+const handleAdmissionChange = async (val: boolean, row: AgentData) => {
+  row.admission = !val;
+
+  if (val) {
+    // 开启准入控制，弹出选择命名空间的对话框
+    await loadNamespaceOptions(row.key);
+    admissionForm.env = row.key;
+    admissionForm.admission = true;
+    admissionForm.namespace = row.admission_namespace
+      ? JSON.parse(row.admission_namespace)
+      : [];
+    admissionDialogVisible.value = true;
+  } else {
+    // 关闭准入控制，弹出确认对话框
+    ElMessageBox.confirm(`确认关闭 ${row.key} 的准入控制功能吗？`, "警告", {
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      type: "warning"
+    }).then(async () => {
+      try {
+        const res = await admisSwitch("off", row.key);
+        if (res.success) {
+          ElMessage.success(res.message);
+          updateAdmission(row.key, false, "");
+          row.admission = false;
+          row.admission_namespace = "";
+        } else {
+          ElMessage.error(res.message);
+        }
+      } catch (error) {
+        console.error("关闭准入控制失败:", error);
+      }
+    });
+  }
+};
+
+// 提交准入控制配置
+const submitAdmission = async () => {
+  if (!admissionForm.namespace.length) {
+    ElMessage.warning("请输入命名空间");
+    return;
+  }
+
+  admissionLoading.value = true;
+  try {
+    const res = await admisSwitch("on", admissionForm.env);
+    if (res.success) {
+      await updateAdmission(
+        admissionForm.env,
+        true,
+        JSON.stringify(admissionForm.namespace)
+      );
+      // 更新当前行的admission_namespace
+      const currentRow = tableData.value.find(
+        row => row.key === admissionForm.env
+      );
+      if (currentRow) {
+        currentRow.admission = true;
+        currentRow.admission_namespace = JSON.stringify(
+          admissionForm.namespace
+        );
+      }
+      ElMessage.success(res.message);
+    } else {
+      ElMessage.error(res.message);
+    }
+    admissionDialogVisible.value = false;
+  } catch (error) {
+    console.error("更新准入控制状态失败:", error);
+  } finally {
+    admissionLoading.value = false;
+  }
+};
+
+// 取消准入控制配置
+const handleCancelAdmission = () => {
+  admissionDialogVisible.value = false;
+  getAgentData(); // 刷新数据，恢复原状态
+};
+
+// 更新对话框
+const updateDialogVisible = ref(false);
+const updateForm = reactive({
+  env: "",
+  image_tag: ""
+});
+const updateLoading = ref(false);
+
+// 处理更新操作
+const handleUpdate = (row: AgentData) => {
+  updateForm.env = row.key;
+  updateForm.image_tag = "";
+  updateDialogVisible.value = true;
+};
+
+// 提交更新
+const submitUpdate = async () => {
+  if (!updateForm.image_tag) {
+    ElMessage.warning("请输入镜像标签");
+    return;
+  }
+
+  updateLoading.value = true;
+  try {
+    const res = await updateImage(updateForm.env, {
+      image_tag: updateForm.image_tag,
+      deployment: "kubedoor-agent",
+      namespace: "kubedoor"
+    });
+    if ((res as any).success) {
+      message(transformI18n((res as any).message), {
+        type: "success"
+      });
+      updateDialogVisible.value = false;
+      await getAgentData();
+    } else {
+      message((res as any).message, {
+        type: "error"
+      });
+    }
+  } finally {
+    updateLoading.value = false;
   }
 };
 
