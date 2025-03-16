@@ -118,26 +118,38 @@
 | ------------------------------------|
 </div>
 
-## 📀KubeDoor 1.0 全新架构，全新部署
+## 📀KubeDoor 全新架构，全新部署
 
 #### 👉🏻<a target="_blank" href="docs/灵活部署方案.md">点击查看灵活部署方案</a>
 
 #### 🛠快速安装
 ```
 ### 【下载helm包】
-wget https://StarsL.cn/kubedoor/kubedoor-1.0.0.tgz
-tar -zxvf kubedoor-1.0.0.tgz
+wget https://StarsL.cn/kubedoor/kubedoor-1.1.0.tgz
+tar -zxvf kubedoor-1.1.0.tgz
 cd kubedoor
 ### 【master端安装】
 # 编辑values-master.yaml文件，请仔细阅读注释，根据描述修改配置内容。
 # try
-helm install kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml --dry-run --debug
+helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml --dry-run --debug
 # install
-helm install kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
+helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
 ### 【agent端安装】
 # 编辑values-agent.yaml文件，请仔细阅读注释，根据描述修改配置内容。
-helm install kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=xxxxxxxx
+helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=xxxxxxxx
 ```
+#### ♻更新KubeDoor
+```
+wget https://StarsL.cn/kubedoor/kubedoor-1.1.0.tgz
+tar -zxvf kubedoor-1.1.0.tgz
+### 把安装1.0时配置好的values-agent.yaml，values-master.yaml 复制到当前kubedoor目录下覆盖已有的文件。
+cp values-agent.yaml values-master.yaml kubedoor/
+### 【master端安装】
+helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
+### 【agent端安装】
+helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=xxxxxxxx
+```
+
 #### 🌐访问WebUI 并初始化数据
 
 1. 使用K8S节点IP + kubedoor-web的NodePort访问，默认账号密码都是 **`kubedoor`**
