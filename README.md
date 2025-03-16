@@ -76,7 +76,7 @@
 | <img src="./screenshot/1.0/6.png"/> | <img src="./screenshot/1.0/7.jpg"/> | <img src="./screenshot/1.0/8.png"/> |
 </div>
 
-### 3. 💠高峰期资源管控
+### 3. 💠高峰期P95资源采集分析
 
 #### 📊采集K8S微服务每日业务高峰时段P95的CPU内存消耗，以及需求、限制值与Pod数。基于采集的数据实现了一个Grafana看板并集成到了WEB UI。
 <div align="center">
