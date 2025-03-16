@@ -142,7 +142,7 @@ helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --value
 ```
 wget https://StarsL.cn/kubedoor/kubedoor-1.1.0.tgz
 tar -zxvf kubedoor-1.1.0.tgz
-### 把安装1.0时配置好的values-agent.yaml，values-master.yaml 复制到当前kubedoor目录下覆盖已有的文件。
+### 把安装1.0时配置好的values-agent.yaml，values-master.yaml 复制到当前kubedoor目录下，覆盖已有的文件。
 cp values-agent.yaml values-master.yaml kubedoor/
 ### 【master端安装】
 helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
