@@ -53,6 +53,7 @@ func StartAgent() {
 			log.Println("Received termination signal (Ctrl+C). Shutting down...")
 			return // Exit the loop and terminate the program
 		default:
+
 			// Proceed with normal WebSocket connection
 			conn, resp, err := websocket.DefaultDialer.Dial(u.String(), nil)
 			if err != nil {

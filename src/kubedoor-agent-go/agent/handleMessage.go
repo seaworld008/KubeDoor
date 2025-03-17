@@ -100,17 +100,17 @@ func handleMessage(conn *websocket.Conn, data config.MessageDataStruct) {
 		response = podmgr.DeletePodHandler(data.Query)
 	case "/api/pod/auto_dump":
 		utils.Logger.Info("podmgr.AutoDump:", zap.Any("query", data.Query))
-		response, _ = sendRequest("auto_dump", data.Query)
+		response, _ = sendRequest("/api/pod/auto_dump", data.Query)
 		//response = podmgr.AutoDump(data.Query)
 	case "/api/pod/auto_jstack":
 		utils.Logger.Info("podmgr.auto_jstack:", zap.Any("query", data.Query))
-		response, _ = sendRequest("auto_jstack", data.Query)
+		response, _ = sendRequest("/api/pod/auto_jstack", data.Query)
 	case "/api/pod/auto_jfr":
 		utils.Logger.Info("podmgr.auto_jfr:", zap.Any("query", data.Query))
-		response, _ = sendRequest("auto_jfr", data.Query)
+		response, _ = sendRequest("/api/pod/auto_jfr", data.Query)
 	case "/api/pod/auto_jvm_mem":
 		utils.Logger.Info("podmgr.auto_jvm_mem:", zap.Any("query", data.Query))
-		response, _ = sendRequest("auto_jvm_mem", data.Query)
+		response, _ = sendRequest("/api/pod/auto_jvm_mem", data.Query)
 	default:
 		utils.Logger.Warn("Unknown path", zap.String("path", data.Path))
 	}
