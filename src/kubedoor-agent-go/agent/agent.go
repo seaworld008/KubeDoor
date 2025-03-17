@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"kubedoor-agent-go/config"
@@ -30,13 +31,24 @@ func StartAgent() {
 		log.Fatal("KUBEDOOR_MASTER environment variable is not set")
 		return
 	}
-
-	wsURL := fmt.Sprintf("%s/ws?env=%s&ver=%s", kubeDoorMaster, promK8sTagValue, version)
-	u, err := url.Parse(wsURL)
+	u, err := url.Parse(kubeDoorMaster)
 	if err != nil {
 		utils.Logger.Error("Failed to parse websocket URL", zap.Error(err))
 		log.Fatalf("Failed to parse websocket URL: %v", err)
 		return
+	}
+
+	user := u.User.Username()
+	password, _ := u.User.Password()
+	encodedUser := url.QueryEscape(user)
+	encodedPassword := url.QueryEscape(password)
+
+	headers := http.Header{}
+	// 构建正确的 WebSocket URL
+	wsURL := fmt.Sprintf("%s://%s/ws?env=%s&ver=%s", u.Scheme, u.Host, promK8sTagValue, version)
+	if encodedUser != "" {
+		auth := "Basic " + base64.StdEncoding.EncodeToString([]byte(encodedUser+":"+encodedPassword))
+		headers.Add("Authorization", auth)
 	}
 
 	log.Printf("Connecting to %s", u.String())
@@ -53,9 +65,8 @@ func StartAgent() {
 			log.Println("Received termination signal (Ctrl+C). Shutting down...")
 			return // Exit the loop and terminate the program
 		default:
-
 			// Proceed with normal WebSocket connection
-			conn, resp, err := websocket.DefaultDialer.Dial(u.String(), nil)
+			conn, resp, err := websocket.DefaultDialer.Dial(wsURL, headers)
 			if err != nil {
 				// 如果有 HTTP 响应，检查状态码
 				if resp != nil {
