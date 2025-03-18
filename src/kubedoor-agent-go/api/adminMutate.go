@@ -33,7 +33,9 @@ func updateAll(replicas int, namespace, deploymentName string, requestCPU, reque
 	}
 
 	b, err := json.Marshal(resourcesObj)
-	fmt.Println(">>>err ", err)
+	if err != nil {
+		utils.Logger.Error("Error marshalling resourcesObj: ", zap.Error(err))
+	}
 	// request_cpu_m, request_mem_mb, limit_cpu_m, limit_mem_mb，有则改，无则不动
 	utils.Logger.Info(fmt.Sprintf("改前：%s", string(b)))
 	if requestCPU > 0 {
@@ -65,7 +67,9 @@ func updateAll(replicas int, namespace, deploymentName string, requestCPU, reque
 		utils.Logger.Info(fmt.Sprintf("admis:【%s】【%s】【%s】未配置limit_mem_mb", namespace, deploymentName, "PROM_K8S_TAG_VALUE"))
 	}
 	b, err = json.Marshal(resourcesObj)
-	fmt.Println(">>>err ", err)
+	if err != nil {
+		utils.Logger.Error("Error marshalling resourcesObj: ", zap.Error(err))
+	}
 	utils.Logger.Info(fmt.Sprintf("改后：%s", string(b)))
 
 	// 构造资源更新的 patch
@@ -81,7 +85,6 @@ func updateAll(replicas int, namespace, deploymentName string, requestCPU, reque
 	if err != nil {
 		utils.Logger.Error("Error marshalling patch ops: ", zap.Error(err))
 	}
-	fmt.Println(">>>>", string(patchJSONB))
 	utils.Logger.Info(string(patchJSONB))
 	// 创建 AdmissionReview 响应
 	return &admissionv1.AdmissionReview{

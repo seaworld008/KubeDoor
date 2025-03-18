@@ -67,8 +67,7 @@ func modifyPodLabel(ctx context.Context, ns string, podName string) (bool, strin
 		currentLabels = make(map[string]string)
 	}
 
-	isolateLabel := getPodIsolateLabel(podName)
-	labelsApp := currentLabels[isolateLabel]
+	labelsApp := currentLabels["app"]
 	if labelsApp == "" {
 		return false, "===app_label_not_found"
 	}
@@ -76,20 +75,16 @@ func modifyPodLabel(ctx context.Context, ns string, podName string) (bool, strin
 		return true, "Isolated"
 	}
 	newLabelValue := labelsApp + "-ALERT"
-	currentLabels[isolateLabel] = newLabelValue
+	currentLabels["app"] = newLabelValue
 
 	podData.ObjectMeta.Labels = currentLabels
-	_, err = config.KubeClient.CoreV1().Pods(ns).Patch(ctx, podName, types.MergePatchType, []byte(fmt.Sprintf(`{"metadata":{"labels":{"%s":"%s"}}}`, isolateLabel, newLabelValue)), metav1.PatchOptions{})
+	_, err = config.KubeClient.CoreV1().Pods(ns).Patch(ctx, podName, types.MergePatchType, []byte(fmt.Sprintf(`{"metadata":{"labels":{"%s":"%s"}}}`, "app", newLabelValue)), metav1.PatchOptions{})
 	if err != nil {
 		utils.Logger.Error("Failed to patch pod label", zap.Error(err), zap.String("namespace", ns), zap.String("podName", podName))
 		return false, "===modify_label_failed"
 	}
 
 	return true, ""
-}
-
-func getPodIsolateLabel(podName string) string {
-	return "app" // Fixed label key
 }
 
 func sendMd(msg string, env string, ns string, podName string) {

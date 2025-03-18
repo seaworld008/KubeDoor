@@ -9,10 +9,8 @@ import (
 	"time"
 )
 
-var baseURL = "http://127.0.0.1:81"
-
 func sendRequest(endpoint string, queryData map[string]interface{}) (map[string]interface{}, error) {
-	url := fmt.Sprintf("%s%s", baseURL, endpoint)
+	url := fmt.Sprintf("http://127.0.0.1:81%s", endpoint)
 	client := &http.Client{Timeout: 10 * time.Second}
 
 	req, err := http.NewRequest("GET", url, nil)

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"kubedoor-agent-go/config"
 	"kubedoor-agent-go/utils" // Import the utils module
 	"log"
@@ -170,6 +171,18 @@ func RestartDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (re
 		// 获取 Deployment
 		deployment, err := config.KubeClient.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
 		if err != nil {
+			if errors.IsNotFound(err) {
+				utils.Logger.Warn("Deployment not found",
+					zap.String("namespace", namespace),
+					zap.String("deployment", deploymentName),
+				)
+				errorList = append(errorList, map[string]string{
+					"namespace":       namespace,
+					"deployment_name": deploymentName,
+					"error":           "Deployment not found",
+				})
+				continue
+			}
 			utils.Logger.Error("Failed to get deployment", zap.Error(err),
 				zap.String("namespace", namespace),
 				zap.String("deployment", deploymentName),
