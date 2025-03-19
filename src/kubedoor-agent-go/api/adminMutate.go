@@ -106,7 +106,7 @@ func admisMutateHandler(w http.ResponseWriter, r *http.Request) {
 	// 读取 r.Body 内容
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		fmt.Println("Error reading body:", err)
+		utils.Logger.Error("Error reading body", zap.Error(err))
 		http.Error(w, "Failed to read body", http.StatusInternalServerError)
 		return
 	}
@@ -114,7 +114,7 @@ func admisMutateHandler(w http.ResponseWriter, r *http.Request) {
 	var admissionReview admisv1.AdmissionReview
 	err = json.Unmarshal(body, &admissionReview)
 	if err != nil {
-		fmt.Println("Error unmarshalling body:", err)
+		utils.Logger.Error("Error unmarshalling body", zap.Error(err))
 		http.Error(w, "Failed to parse request body", http.StatusBadRequest)
 		return
 	}
@@ -122,7 +122,7 @@ func admisMutateHandler(w http.ResponseWriter, r *http.Request) {
 	// 获取 AdmissionRequest 体
 	request := admissionReview.Request
 	if request == nil {
-		fmt.Println("Invalid AdmissionRequest")
+		utils.Logger.Error("Invalid AdmissionRequest")
 		http.Error(w, "Invalid AdmissionRequest", http.StatusBadRequest)
 		return
 	}
@@ -130,15 +130,21 @@ func admisMutateHandler(w http.ResponseWriter, r *http.Request) {
 	var deployObject v1.Deployment
 	err = json.Unmarshal(request.Object.Raw, &deployObject)
 	if err != nil {
-		fmt.Println("Error unmarshalling object:", err)
+		utils.Logger.Error("Error unmarshalling object:", zap.Error(err))
 		http.Error(w, "Failed to parse object", http.StatusBadRequest)
+		return
+	}
+	if request.OldObject.Raw == nil {
+		utils.Logger.Info("create deployment skip admis")
+		json.NewEncoder(w).Encode(admisPass(string(request.UID)))
 		return
 	}
 	// 正确示例，解码之后才能访问
 	var deployOldObject v1.Deployment
 	err = json.Unmarshal(request.OldObject.Raw, &deployOldObject)
 	if err != nil {
-		fmt.Println("Error unmarshalling object:", err)
+		utils.Logger.Error("Error unmarshalling Old object:", zap.Error(err))
+		utils.Logger.Warn("Error unmarshalling Old object admissionReview", zap.String("body", string(body)))
 		http.Error(w, "Failed to parse object", http.StatusBadRequest)
 		return
 	}
@@ -279,7 +285,9 @@ func admisMutateHandler(w http.ResponseWriter, r *http.Request) {
 			limitMemMB,
 			object.Spec.Template.Spec.Containers[0].Resources,
 			uid))
-		fmt.Println("err:", err)
+		if err != nil {
+			utils.Logger.Error("err", zap.Error(err))
+		}
 		return
 
 	case kind == "Deployment" && operation == "UPDATE":
@@ -325,7 +333,6 @@ func admisMutateHandler(w http.ResponseWriter, r *http.Request) {
 
 			if err != nil {
 				utils.Logger.Error("Failed to encode update request", zap.Error(err))
-				fmt.Println("Error encoding update request:", err)
 			}
 			return
 		}

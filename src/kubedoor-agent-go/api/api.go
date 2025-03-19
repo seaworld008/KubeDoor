@@ -232,6 +232,7 @@ func RestartDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (re
 }
 
 // ScaleDeployment 处理多个 Deployment 的缩放请求
+// ScaleDeployment 处理多个 Deployment 的缩放请求
 func ScaleDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (responseData map[string]interface{}) {
 	errorList := []map[string]string{}
 	// 返回结果
@@ -243,10 +244,11 @@ func ScaleDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (resp
 		namespace := deploymentInfo.Namespace
 		deploymentName := deploymentInfo.DeploymentName
 		replaceNum := int32(deploymentInfo.Num)
-		// 获取 Deployment
-		deployment, err := config.KubeClient.AppsV1().Deployments(namespace).Get(ctx, deploymentName, metav1.GetOptions{})
+
+		// 使用 Scale API 来扩缩容
+		scale, err := config.KubeClient.AppsV1().Deployments(namespace).GetScale(ctx, deploymentName, metav1.GetOptions{})
 		if err != nil {
-			utils.Logger.Error("Failed to get deployment", zap.Error(err),
+			utils.Logger.Error("Failed to get deployment scale", zap.Error(err),
 				zap.String("namespace", namespace),
 				zap.String("deployment", deploymentName),
 			)
@@ -258,10 +260,10 @@ func ScaleDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (resp
 			continue
 		}
 
-		deployment.Spec.Replicas = &replaceNum
+		scale.Spec.Replicas = replaceNum
 
-		// 更新 Deployment
-		_, err = config.KubeClient.AppsV1().Deployments(namespace).Update(ctx, deployment, metav1.UpdateOptions{})
+		// 调用 Scale API
+		_, err = config.KubeClient.AppsV1().Deployments(namespace).UpdateScale(ctx, deploymentName, scale, metav1.UpdateOptions{})
 		if err != nil {
 			utils.Logger.Error("Failed to scale deployment", zap.Error(err), zap.String("namespace", namespace), zap.String("deployment", deploymentName))
 			errorDetail := map[string]string{
@@ -273,6 +275,7 @@ func ScaleDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (resp
 		} else {
 			utils.Logger.Info("Successfully scaled deployment", zap.String("namespace", namespace), zap.String("deployment", deploymentName), zap.Int32("num", replaceNum))
 		}
+
 		if isAPI {
 			cronJobName := fmt.Sprintf("%s-%s-%s", "scale", "once", deploymentName)
 			deleteK8sCronJobForScheduledRestart(cronJobName)
