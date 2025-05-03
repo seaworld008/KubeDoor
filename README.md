@@ -25,7 +25,7 @@
 * [💠全新架构](#全新架构)
 * [💎功能描述](#功能描述)
 * [🚀部署说明](#kubedoor-全新架构全新部署)
-* [📀使用介绍](#kubedoor-使用介绍-mcp来啦)
+* [📀使用介绍: KubeDoor MCP来啦](#kubedoor-使用介绍-mcp来啦)
 * [🔔KubeDoor交流群](#KubeDoor交流群与赞赏)
 * [🙇贡献者](#贡献者)
 * [🎯2025 KubeDoor RoadMap](#2025-kubedoor-roadmap)
