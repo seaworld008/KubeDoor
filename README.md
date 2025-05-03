@@ -39,7 +39,7 @@
 ## 💠全新架构
 <div align="center">
 
-### 🎉花折 - KubeDoor 1.0发布！全新架构，多K8S管控支持，多K8S统一监控、告警、展示最佳实践🎉
+### 🎉花折 - KubeDoor 1.3发布！多K8S支持的MCP来啦！全新架构，多K8S管控支持，多K8S统一监控、告警、展示最佳实践🎉
 ![KubeDoor1 0 0 drawio](screenshot/1.0/kubedoor1.0-arch.png)
 </div>
 
@@ -138,17 +138,24 @@ helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values valu
 # 编辑values-agent.yaml文件，请仔细阅读注释，根据描述修改配置内容。
 helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=xxxxxxxx
 ```
-#### ♻更新KubeDoor
+#### ♻更新KubeDoor 1.3.0
 ```
 wget https://StarsL.cn/kubedoor/kubedoor-1.3.0.tgz
 tar -zxvf kubedoor-1.3.0.tgz
-### 把安装1.0时配置好的values-agent.yaml，values-master.yaml 复制到当前kubedoor目录下，覆盖已有的文件。
-cp values-agent.yaml values-master.yaml kubedoor/
-### 【master端安装】
+### 更新ClickHouse数据库字段
+```
+# 旧版本更新到1.3.0需要新增2个数据库字段
+ALTER TABLE kubedoor.k8s_agent_status ADD COLUMN nms_not_confirm Bool DEFAULT false AFTER admission_namespace;
+ALTER TABLE kubedoor.k8s_agent_status ADD COLUMN scheduler Bool DEFAULT false AFTER nms_not_confirm;
+```
+### 请参考已经已经部署好的configmap: `kubedoor-info`中的`VictoriaMetrics`, `ClickHouse`等配置项修改`values-master.yaml`, `values-agent.yaml`的对应配置，确保使用的配置与旧版本一致。(因yaml配置有调整，不可直接替换文件。)
+### 【master端更新】
 helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
-### 【agent端安装】
+### 【agent端更新】
 helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=xxxxxxxx
 ```
+
+## 📀KubeDoor 使用说明 MCP来啦
 
 #### 🌐访问WebUI 并初始化数据
 
@@ -159,6 +166,11 @@ helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --value
 >重复执行`采集`不会导致重复写入数据，请放心使用；每次采集后都会自动将10天内最大资源消耗日的数据写入到管控表。如果耗时较长，请等待采集完成或缩短采集时长。
 
 >如果您是新安装的监控系统，并且已过了当天的高峰期时段，将会无法采集到数据；需要等第二天高峰期时段之后才能采集到数据。
+
+#### 💠使用KubeDoor MCP
+##### 花折 KubeDoor MCP 体验版上线啦
+- 使用任意MCP客户端, 新增MCP服务器, 选择sse类型,地址输入：`http://{nodeIP}:{kubedoor-mcp-NodePort}/sse`即可接入KubeDoor MCP.
+![kubedoor-mcp](https://github.com/user-attachments/assets/26e03c8e-4038-4094-affe-1d4de85d4675)
 
 ---
 
