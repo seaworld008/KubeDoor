@@ -25,6 +25,7 @@
 * [💠全新架构](#全新架构)
 * [💎功能描述](#功能描述)
 * [🚀部署说明](#kubedoor-全新架构全新部署)
+* [📀使用介绍](#kubedoor-使用介绍-mcp来啦)
 * [🔔KubeDoor交流群](#KubeDoor交流群与赞赏)
 * [🙇贡献者](#贡献者)
 * [🎯2025 KubeDoor RoadMap](#2025-kubedoor-roadmap)
@@ -155,7 +156,7 @@ helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values valu
 helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=xxxxxxxx
 ```
 
-## 📀KubeDoor 使用说明 MCP来啦
+## 📀KubeDoor 使用介绍 MCP来啦
 
 #### 🌐访问WebUI 并初始化数据
 
@@ -170,6 +171,9 @@ helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --value
 #### 💠使用KubeDoor MCP
 ##### 花折 KubeDoor MCP 体验版上线啦
 - 使用任意MCP客户端, 新增MCP服务器, 选择sse类型,地址输入：`http://{nodeIP}:{kubedoor-mcp-NodePort}/sse`即可接入KubeDoor MCP.
+- 由于大语言模型的不确定性，请尽量使用带工具确认的的MCP客户端（cline、Cursor）。
+- 目前为体验版，暂未做MCP WEB客户端以及工具调用鉴权，请勿将MCP服务端地址暴露到公网。
+
 ![kubedoor-mcp](https://github.com/user-attachments/assets/26e03c8e-4038-4094-affe-1d4de85d4675)
 
 ---
