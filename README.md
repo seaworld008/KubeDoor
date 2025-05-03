@@ -139,20 +139,22 @@ helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values valu
 # 编辑values-agent.yaml文件，请仔细阅读注释，根据描述修改配置内容。
 helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=xxxxxxxx
 ```
-#### ♻更新KubeDoor 1.3.0
+### ♻更新KubeDoor 1.3.0
 ```
+# 下载安装包
 wget https://StarsL.cn/kubedoor/kubedoor-1.3.0.tgz
 tar -zxvf kubedoor-1.3.0.tgz
-### 更新ClickHouse数据库字段
+```
 ```
 # 旧版本更新到1.3.0需要新增2个数据库字段
 ALTER TABLE kubedoor.k8s_agent_status ADD COLUMN nms_not_confirm Bool DEFAULT false AFTER admission_namespace;
 ALTER TABLE kubedoor.k8s_agent_status ADD COLUMN scheduler Bool DEFAULT false AFTER nms_not_confirm;
 ```
-### 请参考已经已经部署好的configmap: `kubedoor-info`中的`VictoriaMetrics`, `ClickHouse`等配置项修改`values-master.yaml`, `values-agent.yaml`的对应配置，确保使用的配置与旧版本一致。(因yaml配置有调整，不可直接替换文件。)
-### 【master端更新】
+##### **请参考已经已经部署好的configmap: `kubedoor-info`中的`VictoriaMetrics`, `ClickHouse`等配置项修改`values-master.yaml`, `values-agent.yaml`的对应配置，确保使用的配置与旧版本一致。(因yaml配置有调整，不可直接替换文件。)**
+```
+#【master端更新】
 helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values values-master.yaml
-### 【agent端更新】
+#【agent端更新】
 helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=xxxxxxxx
 ```
 
