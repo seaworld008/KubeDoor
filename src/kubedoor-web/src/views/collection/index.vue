@@ -4,6 +4,7 @@ import { transformI18n } from "@/plugins/i18n";
 import { useCollection } from "./utils/hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { useSearchStoreHook } from "@/store/modules/search";
 
 import Refresh from "@iconify-icons/ep/refresh";
 
@@ -11,6 +12,7 @@ defineOptions({
   name: "Resource Collection"
 });
 
+const searchStore = useSearchStoreHook();
 const {
   envList,
   queryForm,
@@ -20,7 +22,7 @@ const {
   deviceDetection,
   onSearch,
   resetForm
-} = useCollection();
+} = useCollection(searchStore);
 </script>
 
 <template>

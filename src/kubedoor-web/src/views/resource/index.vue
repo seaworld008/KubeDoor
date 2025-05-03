@@ -4,6 +4,7 @@ import { transformI18n } from "@/plugins/i18n";
 import { useResource } from "./utils/hook";
 import { PureTableBar } from "@/components/RePureTableBar";
 import { useRenderIcon } from "@/components/ReIcon/src/hooks";
+import { useSearchStoreHook } from "@/store/modules/search";
 
 import Upload from "@iconify-icons/ri/upload-line";
 import Role from "@iconify-icons/ri/admin-line";
@@ -22,6 +23,7 @@ defineOptions({
 });
 
 const tableRef = ref();
+const searchStore = useSearchStoreHook();
 
 const {
   maxDay,
@@ -45,7 +47,7 @@ const {
   openDialog,
   onChangeCapacity,
   onReboot
-} = useResource(tableRef);
+} = useResource(tableRef, searchStore);
 </script>
 
 <template>

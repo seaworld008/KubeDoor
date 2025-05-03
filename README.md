@@ -125,8 +125,8 @@
 #### 🛠快速安装
 ```
 ### 【下载helm包】
-wget https://StarsL.cn/kubedoor/kubedoor-1.1.0.tgz
-tar -zxvf kubedoor-1.1.0.tgz
+wget https://StarsL.cn/kubedoor/kubedoor-1.3.0.tgz
+tar -zxvf kubedoor-1.3.0.tgz
 cd kubedoor
 ### 【master端安装】
 # 编辑values-master.yaml文件，请仔细阅读注释，根据描述修改配置内容。
@@ -140,8 +140,8 @@ helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --value
 ```
 #### ♻更新KubeDoor
 ```
-wget https://StarsL.cn/kubedoor/kubedoor-1.1.0.tgz
-tar -zxvf kubedoor-1.1.0.tgz
+wget https://StarsL.cn/kubedoor/kubedoor-1.3.0.tgz
+tar -zxvf kubedoor-1.3.0.tgz
 ### 把安装1.0时配置好的values-agent.yaml，values-master.yaml 复制到当前kubedoor目录下，覆盖已有的文件。
 cp values-agent.yaml values-master.yaml kubedoor/
 ### 【master端安装】

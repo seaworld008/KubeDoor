@@ -195,6 +195,7 @@ resource:
     scale: Scale
     reboot: Restart
   form:
+    addLabel: Add Label
     ExecuteImmediately: Immediately Execution
     ScheduledExecution: Scheduled Execution
     PeriodicExecution: Periodic Execution

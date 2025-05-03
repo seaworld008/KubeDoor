@@ -6,8 +6,10 @@ from datetime import datetime, UTC
 import pytz
 import logging
 import hashlib
+import os
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+logging.basicConfig(level=getattr(logging, utils.LOG_LEVEL), format='%(asctime)s - %(levelname)s - %(message)s')
 pool = ChPool(
     host=utils.CK_HOST,
     port=utils.CK_PORT,

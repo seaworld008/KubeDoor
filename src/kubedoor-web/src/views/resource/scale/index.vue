@@ -10,19 +10,22 @@ type Props = {
   isScale: boolean;
   content: string;
   showInterval: boolean;
+  showAddLabel: number; //-1: 多条数据显示默认为false, 0: 不显示, 1: 显示默认为true
 };
 
 const props = withDefaults(defineProps<Props>(), {
   isScale: true,
   content: "",
-  showInterval: false
+  showInterval: false,
+  showAddLabel: -1
 });
 const formRef = ref();
 const form = ref({
   interval: 0,
   type: 1,
   time: "",
-  cron: ""
+  cron: "",
+  add_label: props.showAddLabel > 0 ? true : false
 });
 
 const validateData = (rule, value, callback) => {
@@ -107,6 +110,24 @@ defineExpose({ getData });
         <re-col :offset="2" :value="20" :xs="24" :sm="24">
           <div style="margin-bottom: 15px" v-html="props.content" />
         </re-col>
+        <template v-if="props.isScale">
+          <re-col
+            v-if="props.showAddLabel !== 0"
+            :offset="2"
+            :value="20"
+            :xs="24"
+            :sm="24"
+          >
+            <el-form-item
+              class="addLabel_form_item"
+              :label="transformI18n('resource.form.addLabel')"
+              label-width="180px"
+              prop="add_label"
+            >
+              <el-checkbox v-model="form.add_label" />
+            </el-form-item>
+          </re-col>
+        </template>
         <template v-if="!props.showInterval">
           <re-col :offset="2" :value="20" :xs="24" :sm="24">
             <el-form-item
@@ -174,3 +195,11 @@ defineExpose({ getData });
     </el-form>
   </div>
 </template>
+
+<style scoped>
+.addLabel_form_item {
+  :deep(.el-form-item__label) {
+    color: var(--el-color-danger);
+  }
+}
+</style>

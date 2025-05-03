@@ -27,24 +27,36 @@ async def get_authorization_header(username, password):
 async def forward_request(request):
     try:
         data = await request.text()
-        data = data.replace('__KUBEDOORDB__', utils.CK_DATABASE)
-        logger.info(data)
+
         permission = request.headers.get('X-User-Permission', '')
         if permission == 'read' and not data.strip().lower().startswith('select'):
             return web.Response(status=403)
-        TARGET_URL = f'http://{utils.CK_HOST}:{utils.CK_HTTP_PORT}/?add_http_cors_header=1&default_format=JSONCompact'
-        headers = {
-            'Authorization': await get_authorization_header(utils.CK_USER, utils.CK_PASSWORD),
-            'Content-Type': 'text/plain',
-        }
+        if not data.strip().lower().startswith(('select', 'alter', 'insert')):
+            return web.Response(status=403)
+        data = data.replace('__KUBEDOORDB__', utils.CK_DATABASE)
+        logger.info(f'📐{data}')
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(TARGET_URL, data=data, headers=headers) as response:
-                if response.content_type == 'application/json':
-                    response_data = await response.json()
+        if data.strip().lower().startswith(('alter')):
+            utils.ck_alter(data)
+            utils.ck_optimize()
+            logger.info("SQL: 数据更新")
+            return web.json_response({"msg": "SQL: 数据更新完成"})
+        else:
+            TARGET_URL = f'http://{utils.CK_HOST}:{utils.CK_HTTP_PORT}/?add_http_cors_header=1&default_format=JSONCompact'
+            headers = {
+                'Authorization': await get_authorization_header(utils.CK_USER, utils.CK_PASSWORD),
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache',
+                'Content-Type': 'text/plain',
+            }
+            async with aiohttp.ClientSession() as session:
+                async with session.post(TARGET_URL, data=data, headers=headers) as response:
+                    if response.content_type == 'application/json':
+                        response_data = await response.json()
+                    else:
+                        text = await response.text()
+                        response_data = {"msg": text}
                     return web.json_response(response_data)
-                else:
-                    return web.json_response({})
     except Exception as e:
         logger.error(f"Error in forward_request: {e}")
         return web.json_response({"error": str(e)}, status=500)
@@ -134,6 +146,12 @@ async def http_handler(request):
 
     if env not in clients or not clients[env]["online"]:
         return web.Response(text="目标客户端不在线", status=404)
+
+    # 扩缩容接口要查询节点cpu使用率并传给agent
+    logger.info(path)
+    if path == "/api/scale" and query_params.get("add_label") == 'true':
+        node_cpu_list = await utils.get_node_cpu_per(query_params.get("env"))
+        body[0]['node_cpu_list'] = node_cpu_list
 
     # 向目标客户端发送消息
     request_id = str(time.time())  # 使用时间戳作为唯一请求 ID

@@ -78,7 +78,7 @@
           <el-table-column
             prop="collect"
             label="自动采集"
-            min-width="80"
+            min-width="85"
             align="center"
             sortable
           >
@@ -115,7 +115,7 @@
           <el-table-column
             prop="admission"
             label="准入控制"
-            min-width="80"
+            min-width="85"
             align="center"
             sortable
           >
@@ -135,6 +135,40 @@
             align="center"
             show-overflow-tooltip
           />
+          <el-table-column
+            prop="nms_not_confirm"
+            label="新服务免确认"
+            min-width="110"
+            align="center"
+            sortable
+          >
+            <template #default="scope">
+              <el-switch
+                v-model="scope.row.nms_not_confirm"
+                :disabled="!scope.row.admission"
+                :active-value="true"
+                :inactive-value="false"
+                @change="val => handleNmsNotConfirmChange(!!val, scope.row)"
+              />
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="scheduler"
+            label="固定节点均衡"
+            min-width="110"
+            align="center"
+            sortable
+          >
+            <template #default="scope">
+              <el-switch
+                v-model="scope.row.scheduler"
+                :disabled="!scope.row.admission"
+                :active-value="true"
+                :inactive-value="false"
+                @change="val => handleSchedulerChange(!!val, scope.row)"
+              />
+            </template>
+          </el-table-column>
         </el-table>
       </el-card>
     </div>
@@ -299,7 +333,9 @@ import {
   initPeakData,
   updateAgentCollect,
   admisSwitch,
-  updateAdmission
+  updateAdmission,
+  updateNmsNotConfirm,
+  updateScheduler
 } from "@/api/workbench";
 
 import { updateImage } from "@/api/resource";
@@ -319,6 +355,8 @@ interface AgentData {
   peak_hours: string;
   admission: boolean;
   admission_namespace: string;
+  nms_not_confirm: boolean;
+  scheduler: boolean;
 }
 
 // 搜索表单
@@ -374,7 +412,9 @@ const getAgentData = async () => {
         collect: !!data[key].collect || false,
         peak_hours: data[key].peak_hours || "",
         admission: !!data[key].admission || false,
-        admission_namespace: data[key].admission_namespace || ""
+        admission_namespace: data[key].admission_namespace || "",
+        nms_not_confirm: !!data[key].nms_not_confirm || false,
+        scheduler: !!data[key].scheduler || false
       }));
     } else {
       tableData.value = [];
@@ -586,6 +626,52 @@ const submitAdmission = async () => {
 const handleCancelAdmission = () => {
   admissionDialogVisible.value = false;
   getAgentData(); // 刷新数据，恢复原状态
+};
+
+// 新服务免确认对话框
+const handleNmsNotConfirmChange = async (val: boolean, row: AgentData) => {
+  row.nms_not_confirm = !val;
+
+  ElMessageBox.confirm(
+    `确认${val ? "开启" : "关闭"} ${row.key} 的新服务免确认功能吗？`,
+    "警告",
+    {
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      type: "warning"
+    }
+  ).then(async () => {
+    try {
+      await updateNmsNotConfirm(row.key, val ? 1 : 0);
+      ElMessage.success("修改成功");
+      row.nms_not_confirm = val;
+    } catch (error) {
+      console.error("关闭准入控制失败:", error);
+    }
+  });
+};
+
+// 固定节点均衡对话框
+const handleSchedulerChange = async (val: boolean, row: AgentData) => {
+  row.scheduler = !val;
+
+  ElMessageBox.confirm(
+    `确认${val ? "开启" : "关闭"} ${row.key} 的固定节点均衡功能吗？`,
+    "警告",
+    {
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
+      type: "warning"
+    }
+  ).then(async () => {
+    try {
+      await updateScheduler(row.key, val ? 1 : 0);
+      row.scheduler = val;
+      ElMessage.success("修改成功");
+    } catch (error) {
+      console.error("关闭准入控制失败:", error);
+    }
+  });
 };
 
 // 更新对话框

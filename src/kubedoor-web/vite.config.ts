@@ -26,7 +26,8 @@ export default ({ mode }: ConfigEnv): UserConfigExport => {
       // 本地跨域代理 https://cn.vitejs.dev/config/server-options.html#server-proxy
       proxy: {
         "/api": {
-          target: "http://10.7.0.226:31027",
+          // target: "http://10.7.0.226:31027",
+          target: "https://kubedoor-test.casstime.net",
           changeOrigin: true
         }
         // "/kunlun": {

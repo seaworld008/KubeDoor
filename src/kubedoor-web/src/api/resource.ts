@@ -147,17 +147,30 @@ export const getCollection = (date: string, env: string) => {
 //   });
 // };
 
-export const execCapacity = (env: string, data: any[], interval?: number) => {
-  return http.request<ResultTable>("post", `/api/scale?env=${env}`, {
-    params: interval ? { interval } : undefined,
-    data
-  });
+export const execCapacity = (
+  env: string,
+  addLabel: boolean,
+  data: any[],
+  interval?: number
+) => {
+  return http.request<ResultTable>(
+    "post",
+    `/api/scale?env=${env}${addLabel ? "&add_label=true" : ""}`,
+    {
+      params: interval ? { interval } : undefined,
+      data
+    }
+  );
 };
 
-export const execTimeCron = (env: string, data: any) => {
-  return http.request<ResultTable>("post", `/api/cron?env=${env}`, {
-    data
-  });
+export const execTimeCron = (env: string, addLabel: boolean, data: any) => {
+  return http.request<ResultTable>(
+    "post",
+    `/api/cron?env=${env}${addLabel ? "&add_label=true" : ""}`,
+    {
+      data
+    }
+  );
 };
 
 export const rebootResource = (env: string, data: any[], interval?: number) => {

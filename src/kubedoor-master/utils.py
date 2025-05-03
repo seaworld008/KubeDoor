@@ -286,6 +286,16 @@ def merge_dicts(dict1, dict2):
     return merged_dict
 
 
+def ck_optimize():
+    result = ckclient.execute('OPTIMIZE TABLE k8s_res_control FINAL')
+    return True
+
+
+def ck_alter(sql):
+    result = ckclient.execute(sql)
+    return True
+
+
 def ck_agent_collect_info():
     """从ck中读取agent的信息"""
     result = ckclient.execute('SELECT env, peak_hours FROM k8s_agent_status WHERE collect = 1')
@@ -305,11 +315,19 @@ def ck_agent_info():
     """从ck中读取agent的信息"""
     agent_info = {}
     try:
-        rows = ckclient.execute("SELECT env, collect, peak_hours, admission, admission_namespace FROM k8s_agent_status")
+        rows = ckclient.execute("SELECT env, collect, peak_hours, admission, admission_namespace, nms_not_confirm, scheduler FROM k8s_agent_status")
         if rows:
             for row in rows:
                 env = row[0]
-                agent_info[env] = {"collect": row[1], "peak_hours": row[2], "admission": row[3], "admission_namespace": row[4]}
+                agent_info[env] = {
+                    "collect": row[1],
+                    "peak_hours": row[2],
+                    "admission": row[3],
+                    "admission_namespace": row[4],
+                    "nms_not_confirm": row[5],
+                    "scheduler": row[6],
+                }
+
     except ServerException as e:
         logger.exception(e)
     ckclient.disconnect()
@@ -320,7 +338,7 @@ def get_deploy_admis(env, namespace, deployment):
     """从ck中读取agent的信息"""
     try:
         result = ckclient.execute(
-            f"""SELECT 1 FROM k8s_agent_status where env = '{env}' and admission = 1 and admission_namespace like '%"{namespace}"%'"""
+            f"""SELECT scheduler,nms_not_confirm FROM k8s_agent_status where env = '{env}' and admission = 1 and admission_namespace like '%"{namespace}"%'"""
         )
         if result:
             query = (
@@ -331,16 +349,24 @@ def get_deploy_admis(env, namespace, deployment):
             )
             deploy_res = ckclient.execute(query)
             if deploy_res:
-                logger.info(f"admis:【{env}】【{namespace}】【{deployment}】{deploy_res}")
-                return deploy_res[0]
+                deploy_res_list = list(deploy_res[0])
+                deploy_res_list.append(result[0][0])  # scheduler
+                logger.info(f"🔊master(admis)返回:【{env}】【{namespace}】【{deployment}】{deploy_res_list}")
+                return deploy_res_list
             else:
-                content = f"admis:【{env}】【{namespace}】【{deployment}】部署失败: 数据库中找不到该服务，请先新增服务"
-                logger.warning(content)
-                return [404, '数据库中找不到该服务，请先新增服务']
+                nms_not_confirm = result[0][1]
+                if nms_not_confirm:
+                    content = f'master(admis)返回: 新服务免确认已启用【{env}】【{namespace}】【{deployment}】允许部署/扩缩容,因为k8s_res_control表中找不到该服务,该服务不会被管控，也不会配置固定节点均衡模式（未开启则忽略）。'
+                    logger.warning(content)
+                    return [200, content]
+                else:
+                    content = f"master(admis)返回:【{env}】【{namespace}】【{deployment}】部署失败: k8s_res_control表中找不到该服务，且未开启新服务免确认，请先新增服务。"
+                    logger.warning(content)
+                    return [404, content]
         else:
             return [200, '非管控命名空间，直接放行']
     except ServerException as e:
-        content = f"admis:【{env}】【{namespace}】【{deployment}】查询数据库失败：{e}"
+        content = f"master(admis)返回:【{env}】【{namespace}】【{deployment}】查询数据库失败：{e}"
         logger.error(content)
         return [503, '查询数据库异常']
 
@@ -555,3 +581,20 @@ def update_control_data(metrics_list_ck):
                 return False
     ckclient.disconnect()
     return True
+
+
+async def get_node_cpu_per(env_value):
+    query = f'(1 - avg(irate(node_cpu_seconds_total{{mode="idle",{PROM_K8S_TAG_KEY}="{env_value}"}}[2m])) by (instance,nodeAppType,origin_prometheus))*100'
+    try:
+        logger.info(query)
+        response = requests.get(get_prom_url(), params={'query': query})
+        logger.info(get_prom_url())
+        response.raise_for_status()
+        data = response.json().get("data").get("result")
+        cpu_list = [{'name': i.get('metric').get('instance'), 'percent': float(i['value'][1])} for i in data if 'value' in i and len(i['value']) > 1]
+        logger.info(f'从prometheus查询节点cpu使用率{cpu_list}')
+        cpu_list.sort(key=lambda x: x['percent'])
+        logger.info(f'节点cpu使用率从小到大排序{cpu_list}')
+        return cpu_list
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Error getting node cpu usage percent from Prometheus: {e}")

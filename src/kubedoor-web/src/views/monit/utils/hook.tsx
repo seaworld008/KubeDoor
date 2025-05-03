@@ -10,7 +10,7 @@ import {
   rebootResource,
   updateImage
 } from "@/api/resource";
-import { updatePodCount } from "@/api/monit";
+import { updatePodCount, showAddLabel } from "@/api/monit";
 import { h, ref } from "vue";
 import { transformI18n } from "@/plugins/i18n";
 
@@ -43,12 +43,15 @@ export function useResource() {
         })
         .join("<br>");
 
+      const showAddLabelRes = await showAddLabel(row.env, row.namespace);
+
       addDialog({
         title: transformI18n("resource.scale"),
         props: {
           isScale: true,
           content,
           showInterval: params.length > 1, // 是否显示间隔
+          showAddLabel: showAddLabelRes.data.length > 0,
           params: { podCount: row.podCount }
         },
         width: "40%",
@@ -74,6 +77,7 @@ export function useResource() {
             if (params.length > 1 || scaleData.tempData.type == 1) {
               res = await execCapacity(
                 currentEnv,
+                scaleData.tempData.add_label,
                 params,
                 params.length > 1 ? scaleData.tempData.interval : undefined
               );
@@ -91,7 +95,11 @@ export function useResource() {
                 tempData.time = "";
                 tempData.cron = scaleData.tempData.cron;
               }
-              res = await execTimeCron(currentEnv, tempData);
+              res = await execTimeCron(
+                currentEnv,
+                scaleData.tempData.add_label,
+                tempData
+              );
             }
 
             if ((res as any).message == "ok" || res == "ok") {
@@ -172,7 +180,7 @@ export function useResource() {
                 tempData.time = "";
                 tempData.cron = scaleData.tempData.cron;
               }
-              res = await execTimeCron(currentEnv, tempData);
+              res = await execTimeCron(currentEnv, false, tempData);
             }
 
             console.log(res);

@@ -137,8 +137,10 @@ import { getAlarmTotal, getEnv } from "@/api/alarm";
 import { useRouter } from "vue-router";
 import { RefreshRight, ArrowDown } from "@element-plus/icons-vue";
 import dayjs from "dayjs";
+import { useSearchStoreHook } from "@/store/modules/search";
 
 const router = useRouter();
+const searchStore = useSearchStoreHook();
 const loading = ref(false);
 const statistics = ref([]);
 
@@ -179,14 +181,9 @@ const envOptions = ref<string[]>([]);
 const timeRange = ref<number | null>(0);
 const hideZeroAlerts = ref(false);
 
-// 处理隐藏0告警状态变化
-const handleHideZeroChange = (val: boolean) => {
-  getAlarmData();
-};
-
 const queryParams = reactive({
   startTime: dayjs().startOf("day").format("YYYY-MM-DD HH:mm:ss"),
-  env: undefined as string | undefined
+  env: searchStore.env
 });
 
 const getSeverityColor = (severity: string) => {
@@ -273,6 +270,13 @@ const getEnvOptions = async () => {
   try {
     const res = await getEnv();
     envOptions.value = res.data.map((item: string[]) => item[0]);
+    // 如果 store 中有值且存在于选项中，则使用 store 中的值
+    if (searchStore.env && envOptions.value.includes(searchStore.env)) {
+      queryParams.env = searchStore.env;
+    } else {
+      queryParams.env = envOptions.value[0];
+      searchStore.setEnv(envOptions.value[0]);
+    }
     return Promise.resolve(envOptions.value);
   } catch (error) {
     console.error("获取环境选项失败:", error);
@@ -280,10 +284,28 @@ const getEnvOptions = async () => {
   }
 };
 
+// 监听环境变化
+watch(
+  () => queryParams.env,
+  newVal => {
+    if (newVal) {
+      searchStore.setEnv(newVal);
+      getAlarmData();
+    }
+  }
+);
+
+// 处理隐藏0告警状态变化
+const handleHideZeroChange = (val: boolean) => {
+  getAlarmData();
+};
+
 // 页面初始化时获取数据
 onMounted(async () => {
   await getEnvOptions();
-  getAlarmData();
+  if (queryParams.env) {
+    getAlarmData();
+  }
 });
 
 onUnmounted(() => {

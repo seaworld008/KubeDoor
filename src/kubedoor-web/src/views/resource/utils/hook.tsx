@@ -23,16 +23,17 @@ import {
   rebootResource,
   getMaxDay
 } from "@/api/resource";
+import { showAddLabel } from "@/api/monit";
 // import { ElMessageBox } from "element-plus";
-import { type Ref, h, ref, reactive, onMounted } from "vue";
+import { type Ref, h, ref, reactive, onMounted, watch } from "vue";
 import { transformI18n } from "@/plugins/i18n";
 
-export function useResource(tableRef: Ref) {
+export function useResource(tableRef: Ref, searchStore: any) {
   const queryForm = reactive({
     namespace: "",
     deployment: "",
     keyword: "",
-    env: ""
+    env: searchStore.env || ""
   });
   const envList = ref([]);
   const namespaceList = ref([]);
@@ -240,6 +241,8 @@ export function useResource(tableRef: Ref) {
   ];
 
   async function onEnvChange(val: string) {
+    console.log(val);
+    searchStore.setEnv(val);
     const namespaceRes = await getNamespace(val);
     namespaceList.value = namespaceRes.data;
     queryForm.namespace = "";
@@ -293,6 +296,7 @@ export function useResource(tableRef: Ref) {
     queryForm.namespace = "";
     queryForm.deployment = "";
     queryForm.keyword = "";
+    queryForm.env = searchStore.env || "";
     deploymentList.value = [];
     onSearch();
   }
@@ -529,12 +533,20 @@ export function useResource(tableRef: Ref) {
         })
         .join("<br>");
 
+      let showAddLabelRes = -1;
+
+      if (row) {
+        const res = await showAddLabel(row.env, row.namespace);
+        showAddLabelRes = res.data.length;
+      }
+
       addDialog({
         title: transformI18n("resource.scale"),
         props: {
           isScale: true,
           content,
-          showInterval: params.length > 1 // 是否显示间隔.
+          showInterval: params.length > 1, // 是否显示间隔.
+          showAddLabel: showAddLabelRes
         },
         width: "40%",
         draggable: true,
@@ -548,6 +560,7 @@ export function useResource(tableRef: Ref) {
             if (params.length > 1 || data.type == 1) {
               res = await execCapacity(
                 currentEnv,
+                data.add_label,
                 params,
                 params.length > 1 ? data.interval : undefined
               );
@@ -565,7 +578,7 @@ export function useResource(tableRef: Ref) {
                 tempData.time = "";
                 tempData.cron = data.cron;
               }
-              res = await execTimeCron(currentEnv, tempData);
+              res = await execTimeCron(currentEnv, data.add_label, tempData);
             }
 
             if ((res as any).message == "ok" || res == "ok") {
@@ -648,7 +661,7 @@ export function useResource(tableRef: Ref) {
                 tempData.time = "";
                 tempData.cron = data.cron;
               }
-              res = await execTimeCron(currentEnv, tempData);
+              res = await execTimeCron(currentEnv, false, tempData);
             }
 
             console.log(res);
@@ -684,18 +697,34 @@ export function useResource(tableRef: Ref) {
     tableRef.value.setAdaptive();
   }
 
+  // 监听 store 中的环境变化
+  watch(
+    () => searchStore.env,
+    newVal => {
+      if (newVal && newVal !== queryForm.env) {
+        queryForm.env = newVal;
+        onEnvChange(newVal);
+      }
+    }
+  );
+
   onMounted(async () => {
     const [envRes] = await Promise.all([getEnv()]);
     envList.value = envRes.data;
-    // 默认选择第一个env选项
-    if (envList.value.length > 0) {
-      queryForm.env = envList.value[0];
-      const namespaceRes = await getNamespace(queryForm.env);
-      namespaceList.value = namespaceRes.data;
-      onEnvChange(queryForm.env);
-      const { data: maxDayData } = await getMaxDay(queryForm.env);
-      maxDay.value = maxDayData[0];
+    if (
+      searchStore.env &&
+      envList.value.find(item => item[0] == searchStore.env)
+    ) {
+      queryForm.env = searchStore.env;
+    } else if (envList.value.length > 0) {
+      queryForm.env = envList.value[0][0];
     }
+    // 默认选择第一个env选项
+    const namespaceRes = await getNamespace(queryForm.env);
+    namespaceList.value = namespaceRes.data;
+    onEnvChange(queryForm.env);
+    const { data: maxDayData } = await getMaxDay(queryForm.env);
+    maxDay.value = maxDayData[0];
     onSearch();
   });
 

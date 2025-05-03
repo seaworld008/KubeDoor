@@ -6,7 +6,9 @@ CREATE TABLE IF NOT EXISTS kubedoor.k8s_agent_status
     `collect` Bool DEFAULT false,
     `peak_hours` String,
     `admission` Bool DEFAULT false,
-    `admission_namespace` String
+    `admission_namespace` String,
+    `nms_not_confirm` Bool DEFAULT false,
+    `scheduler` Bool DEFAULT false
 )
 ENGINE = MergeTree
 PRIMARY KEY tuple(env)

@@ -103,3 +103,29 @@ export const updateAgentCollect = (
     }
   });
 };
+
+export const updateNmsNotConfirm = (env: string, nmsNotConfirm: number) => {
+  return http.request<any>("post", "/api/sql", {
+    params: {
+      add_http_cors_header: 1,
+      default_format: "JSONCompact"
+    },
+    data: `ALTER TABLE __KUBEDOORDB__.k8s_agent_status UPDATE nms_not_confirm=${nmsNotConfirm} WHERE env='${env}'`,
+    headers: {
+      "Content-Type": "text/plain;charset=UTF-8"
+    }
+  });
+};
+
+export const updateScheduler = (env: string, scheduler: number) => {
+  return http.request<any>("post", "/api/sql", {
+    params: {
+      add_http_cors_header: 1,
+      default_format: "JSONCompact"
+    },
+    data: `ALTER TABLE __KUBEDOORDB__.k8s_agent_status UPDATE scheduler=${scheduler} WHERE env='${env}'`,
+    headers: {
+      "Content-Type": "text/plain;charset=UTF-8"
+    }
+  });
+};

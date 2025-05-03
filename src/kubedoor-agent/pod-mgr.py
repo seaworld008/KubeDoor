@@ -191,7 +191,7 @@ async def execute_in_pod(env, ns, v1, pod_name, type, file_name="not_found"):
     if not status:
         return status, message
     if type == "dump":
-        command = f"env -u JAVA_TOOL_OPTIONS jmap -dump:format=b,file=/{file_name} 1"
+        command = f"env -u JAVA_TOOL_OPTIONS jmap -dump:format=b,file=/{file_name} `pidof -s java`"
         status, message = await execute_command(command, v1, pod_name, ns)
         if status:
             dlurl = f'{utils.OSS_URL}/{env}/dump/{file_name}'
@@ -206,16 +206,16 @@ async def execute_in_pod(env, ns, v1, pod_name, type, file_name="not_found"):
             message = f"dump失败"
     if type == "jfr":
         # 解锁JFR功能
-        command_unlock = f"env -u JAVA_TOOL_OPTIONS jcmd 1 VM.unlock\_commercial\_features"
+        command_unlock = f"env -u JAVA_TOOL_OPTIONS jcmd `pidof -s java` VM.unlock\_commercial\_features"
         status, message = await execute_command(command_unlock, v1, pod_name, ns)
         if not status:
             return status, message + '\n' + "jfr解锁失败"
-        command = f"env -u JAVA_TOOL_OPTIONS jcmd 1 JFR.start duration=5m filename=/{file_name} 1"
+        command = f"env -u JAVA_TOOL_OPTIONS jcmd `pidof -s java` JFR.start duration=5m filename=/{file_name}"
         status, message = await execute_command(command, v1, pod_name, ns)
         if not status:
             return status, message + '\n' + "开启jfr飞行记录失败"
     if type == "jstack":
-        command = f"env -u JAVA_TOOL_OPTIONS jstack -l 1 |tee /{file_name}"
+        command = f"env -u JAVA_TOOL_OPTIONS jstack -l `pidof -s java` |tee /{file_name}"
         status, jstack_msg = await execute_command(command, v1, pod_name, ns)
         if status:
             dlurl = f'{utils.OSS_URL}/{env}/jstack/{file_name}'
@@ -232,7 +232,7 @@ async def execute_in_pod(env, ns, v1, pod_name, type, file_name="not_found"):
             message = f"jstack失败"
     if type == "jvm_mem":
         # 查询jvm内存
-        command = "env -u JAVA_TOOL_OPTIONS jmap -heap 1"
+        command = "env -u JAVA_TOOL_OPTIONS jmap -heap `pidof -s java`"
         # command = "ls arthas-boot.jar || curl -s -O https://arthas.aliyun.com/arthas-boot.jar && env -u JAVA_TOOL_OPTIONS java -jar arthas-boot.jar 1 -c 'memory;stop'|sed -n '/memory | plaintext/,/stop | plaintext/{/memory | plaintext/b;/stop | plaintext/b;p}'"
         status, message = await execute_command(command, v1, pod_name, ns)
     return status, message
@@ -253,7 +253,7 @@ async def auto_dump(env: str, ns: str, pod_name: str):
     if file_name == "error":
         return JSONResponse(status_code=500, content={"message": err_msg})
     # 生成 Java 进程对象统计信息直方图
-    status, message = await execute_command("env -u JAVA_TOOL_OPTIONS jmap -histo 1 |head -n 30", v1, pod_name, ns)
+    status, message = await execute_command("env -u JAVA_TOOL_OPTIONS jmap -histo `pidof -s java` |head -n 30", v1, pod_name, ns)
     if status:
         all_msg = "Java 进程对象统计信息直方图:" + '\n' + message
     else:
@@ -324,6 +324,32 @@ async def get_task_status(task_id: str):
         return TASK_RESULTS[task_id]
     else:
         return {"status": "not found"}
+
+
+@app.get("/api/pod/get_logs")
+async def get_pod_logs(env: str, ns: str, pod: str, lines: int = 100):
+    try:
+        config = load_incluster_config()
+        client.Configuration.set_default(config)
+        v1 = client.CoreV1Api()
+
+        # 检查pod是否存在
+        try:
+            v1.read_namespaced_pod(name=pod, namespace=ns, _request_timeout=30)
+        except Exception as e:
+            error_msg = f"pod [{pod}] in namespace [{ns}] not found"
+            logger.error(error_msg)
+            return JSONResponse(status_code=500, content={"message": error_msg})
+
+        # 获取pod日志
+        logs = v1.read_namespaced_pod_log(name=pod, namespace=ns, tail_lines=lines, _request_timeout=30)
+
+        # 发送通知
+        send_md(f"已获取 {lines} 行日志", env, ns, pod)
+        return {"message": logs, "success": True}
+    except ApiException as e:
+        logger.exception(f"获取Pod日志时出现异常: {e}")
+        return JSONResponse(status_code=500, content={"message": f"获取Pod日志失败: {str(e)}"})
 
 
 if __name__ == "__main__":

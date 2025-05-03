@@ -4,6 +4,9 @@ import json
 import requests
 from loguru import logger
 
+
+NODE_LABLE_VALUE = "kubedoor-scheduler"
+
 logger.remove()
 logger.add(
     sys.stderr,

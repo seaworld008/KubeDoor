@@ -10,6 +10,7 @@ type Props = {
   isScale: boolean;
   content: string;
   showInterval: boolean;
+  showAddLabel: boolean;
   params?: Record<string, any>;
 };
 
@@ -17,6 +18,7 @@ const props = withDefaults(defineProps<Props>(), {
   isScale: true,
   content: "",
   showInterval: false,
+  showAddLabel: false,
   params: () => ({})
 });
 const formRef = ref();
@@ -24,7 +26,8 @@ const form = ref({
   interval: 0,
   type: 1,
   time: "",
-  cron: ""
+  cron: "",
+  add_label: props.showAddLabel ? true : false
 });
 
 const podCount = ref(props.params?.podCount || 0);
@@ -120,6 +123,22 @@ defineExpose({ getData });
               <el-slider v-model="podCount" show-input />
             </el-form-item>
           </re-col>
+          <re-col
+            v-if="props.showAddLabel"
+            :offset="2"
+            :value="20"
+            :xs="24"
+            :sm="24"
+          >
+            <el-form-item
+              class="addLabel_form_item"
+              :label="transformI18n('resource.form.addLabel')"
+              label-width="180px"
+              prop="add_label"
+            >
+              <el-checkbox v-model="form.add_label" />
+            </el-form-item>
+          </re-col>
         </template>
         <template v-if="!props.showInterval">
           <re-col :offset="2" :value="20" :xs="24" :sm="24">
@@ -188,3 +207,11 @@ defineExpose({ getData });
     </el-form>
   </div>
 </template>
+
+<style scoped>
+.addLabel_form_item {
+  :deep(.el-form-item__label) {
+    color: var(--el-color-danger);
+  }
+}
+</style>

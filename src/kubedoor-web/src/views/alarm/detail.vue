@@ -449,7 +449,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import {
   VideoPlay,
@@ -475,9 +475,11 @@ import {
   autoJvmMem,
   updateOperate
 } from "@/api/alarm";
+import { useSearchStoreHook } from "@/store/modules/search";
 
 const route = useRoute();
 const router = useRouter();
+const searchStore = useSearchStoreHook();
 const loading = ref(false);
 const tableData = ref([]);
 const currentPage = ref(1);
@@ -489,7 +491,11 @@ const operateOptions = [
 ];
 const searchForm = ref({
   timeRange: route.query.timeRange ? Number(route.query.timeRange) : 0,
-  env: (route.query.env as string) ? [route.query.env as string] : [],
+  env: searchStore.env
+    ? [searchStore.env]
+    : (route.query.env as string)
+      ? [route.query.env as string]
+      : [],
   alertName: (route.query.alertName as string)
     ? [route.query.alertName as string]
     : [],
@@ -650,9 +656,9 @@ const handleSortChange = ({
 const handleReset = () => {
   searchForm.value = {
     timeRange: route.query.timeRange ? Number(route.query.timeRange) : 0,
-    env: (route.query.env as string) ? [route.query.env as string] : [],
+    env: searchStore.env ? [searchStore.env] : [],
     alertName: (route.query.alertName as string)
-      ? (route.query.alertName as string).split(",")
+      ? [route.query.alertName as string]
       : [],
     status: ["firing"],
     severity: [],
@@ -667,12 +673,30 @@ const getEnvOptions = async () => {
   try {
     const res = await getEnv();
     envOptions.value = res.data.map((item: string[]) => item[0]);
+    // 如果 store 中有值且存在于选项中，则使用 store 中的值
+    if (searchStore.env && envOptions.value.includes(searchStore.env)) {
+      searchForm.value.env = [searchStore.env];
+    } else {
+      searchForm.value.env = envOptions.value[0];
+      searchStore.setEnv(envOptions.value[0]);
+    }
     return Promise.resolve(envOptions.value);
   } catch (error) {
     console.error("获取环境选项失败:", error);
     return Promise.reject(error);
   }
 };
+
+// 监听环境变化
+watch(
+  () => searchForm.value.env,
+  newVal => {
+    if (newVal && newVal.length > 0) {
+      searchStore.setEnv(newVal[0]);
+      handleSearch();
+    }
+  }
+);
 
 // 获取告警名称选项
 const getAlertNameOptions = async () => {

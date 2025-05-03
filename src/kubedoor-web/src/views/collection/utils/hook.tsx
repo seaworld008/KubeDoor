@@ -3,14 +3,14 @@
 import { deviceDetection } from "@pureadmin/utils";
 import { getCollection, getEnv } from "@/api/resource";
 // import { ElMessageBox } from "element-plus";
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { transformI18n } from "@/plugins/i18n";
 import { message } from "@/utils/message";
 
-export function useCollection() {
+export function useCollection(searchStore: any) {
   const queryForm = reactive({
     date: "",
-    env: ""
+    env: searchStore.env || ""
   });
   const envList = ref([]);
   const dataList = ref([]);
@@ -139,13 +139,33 @@ export function useCollection() {
 
   function resetForm() {
     queryForm.date = "";
-    queryForm.env = "";
+    queryForm.env = searchStore.env || "";
     onSearch();
   }
+
+  // 监听 store 中的环境变化
+  watch(
+    () => searchStore.env,
+    newVal => {
+      if (newVal && newVal !== queryForm.env) {
+        queryForm.env = newVal;
+        onSearch();
+      }
+    }
+  );
 
   onMounted(async () => {
     const [envRes] = await Promise.all([getEnv()]);
     envList.value = envRes.data;
+
+    // 如果 store 中有环境值，触发搜索
+    if (
+      searchStore.env &&
+      envList.value.includes(item => item[0] == searchStore.env)
+    ) {
+      queryForm.env = searchStore.env;
+      onSearch();
+    }
   });
 
   return {

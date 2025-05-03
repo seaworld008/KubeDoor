@@ -195,6 +195,7 @@ resource:
     scale: 批量扩缩容
     reboot: 批量重启
   form:
+    addLabel: 已开启固定节点均衡模式
     ExecuteImmediately: 立即执行
     ScheduledExecution: 定时执行
     PeriodicExecution: 周期执行
