@@ -45,6 +45,17 @@
 </div>
 
 ## 💎功能描述
+### 💥花折 KubeDoor MCP
+**💠KubeDoor MCP 体验版来啦！接入任意MCP客户端，即可与LLM对话方式：对您的所有K8S集群操作、资源异常故障分析。**
+- 使用任意MCP客户端, 新增MCP服务器, 选择sse类型,地址输入：`http://{nodeIP}:{kubedoor-mcp-NodePort}/sse`即可接入KubeDoor MCP.
+- 基于KubeDoor的多K8S管理监控架构与已有的API接口，可以快速生成大量MCP工具来操作K8S与Grafana数据分析，敬请期待！
+- 已接入的工具列表
+![图片](https://github.com/user-attachments/assets/19f50de7-248d-429d-9c19-c3a6a2282716)
+- 演示
+![kubedoor-mcp](https://github.com/user-attachments/assets/26e03c8e-4038-4094-affe-1d4de85d4675)
+>由于大语言模型的不确定性，请尽量使用带工具确认的的MCP客户端（cline、Cursor）。
+>
+>目前为体验版，暂未做MCP WEB客户端以及工具调用鉴权，请勿将MCP服务端地址暴露到公网。
 ### 1. 📡资源监控分析：多K8S集群统一监控最佳实践
 <div align="center">
 <img src="./screenshot/1.0/vm-arch.png" width="650;" />
@@ -140,6 +151,7 @@ helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values valu
 helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=xxxxxxxx
 ```
 ### ♻更新KubeDoor 1.3.0
+**♻[更新说明](https://github.com/CassInfra/KubeDoor/releases/tag/1.3.0)**
 ```
 # 下载安装包
 wget https://StarsL.cn/kubedoor/kubedoor-1.3.0.tgz
