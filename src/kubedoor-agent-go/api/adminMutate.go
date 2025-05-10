@@ -41,7 +41,6 @@ func updateAll(replicas int, namespace, deploymentName string, requestCPU, reque
 	if requestCPU > 0 {
 		resourcesObj.Requests[corev1.ResourceCPU] = resource.MustParse(fmt.Sprintf("%dm", requestCPU))
 	} else {
-		// utils.send_msg(f"admis:【{utils.PROM_K8S_TAG_VALUE}】【{namespace}】【{deploymentName}】未配置request_cpu_m")
 		utils.Logger.Info(fmt.Sprintf("admis:【%s】【%s】【%s】未配置request_cpu_m", namespace, deploymentName, "PROM_K8S_TAG_VALUE"))
 	}
 
@@ -195,11 +194,12 @@ func admisMutateHandler(w http.ResponseWriter, r *http.Request) {
 		abcd := []interface{}{}
 		if err := json.Unmarshal(*result, &abcd); err != nil {
 			utils.Logger.Error("Failed to unmarshal requestRes", zap.Error(err))
+			json.NewEncoder(w).Encode(admisFail(uid, http.StatusInternalServerError, "Failed to unmarshal requestRes"))
+			return
 		}
 		if len(abcd) == 2 {
 			if abcd[0].(float64) == 200 {
 				utils.Logger.Info("Request handled successfully", zap.String("uid", uid))
-				//w.WriteHeader(http.StatusOK)
 				json.NewEncoder(w).Encode(admisPass(uid))
 				return
 			}
@@ -209,7 +209,7 @@ func admisMutateHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if len(abcd) == 7 {
+		if len(abcd) == 7 || len(abcd) == 8 {
 			var resIntSlice []int
 			err := json.Unmarshal(*result, &resIntSlice)
 			if err != nil {
@@ -257,19 +257,11 @@ func admisMutateHandler(w http.ResponseWriter, r *http.Request) {
 		// 处理仅修改副本数的逻辑
 		utils.Logger.Info("Received scale request, updating replicas", zap.String("namespace", namespace), zap.String("deploymentName", deploymentName))
 
-		// 在此处执行具体的副本数更新操作
-		// scaleOnly(uid, replicas) // 可以根据你的实际需求调用函数处理
-		replicas := *object.Spec.Replicas
-		num := int(replicas)
-		if num != cloudReplicas {
-			ScaleDeployment([]config.BodyScaleRestartStruct{
-				{
-					Namespace:      namespace,
-					DeploymentName: deploymentName,
-					Num:            num,
-				},
-			}, false)
+		err = json.NewEncoder(w).Encode(scaleOnly(uid, int32(cloudReplicas)))
+		if err != nil {
+			utils.Logger.Error("err", zap.Error(err))
 		}
+		return
 
 	case kind == "Deployment" && operation == "CREATE":
 		// 处理创建请求并更新所有参数
@@ -379,14 +371,16 @@ func admisFail(uid string, code int32, message string) *admissionv1.AdmissionRev
 
 func scaleOnly(uid string, replicas int32) *admissionv1.AdmissionReview {
 	// 仅修改副本数，不重启
-	patchReplicas := map[string]interface{}{
-		"op":    "replace",
-		"path":  "/spec/replicas",
-		"value": replicas,
+	patchReplicas := []map[string]interface{}{
+		{
+			"op":    "replace",
+			"path":  "/spec/replicas",
+			"value": replicas,
+		},
 	}
 
 	// 将 patch 转换为 JSON
-	patchJSON, err := json.Marshal([]interface{}{patchReplicas})
+	patchJSON, err := json.Marshal(patchReplicas)
 	if err != nil {
 		return &admissionv1.AdmissionReview{}
 	}
@@ -397,11 +391,13 @@ func scaleOnly(uid string, replicas int32) *admissionv1.AdmissionReview {
 			Kind:       "AdmissionReview",
 		},
 		Response: &admissionv1.AdmissionResponse{
-			UID:       types.UID(uid),
-			Allowed:   true,
-			Patch:     patchJSON,
-			PatchType: func() *admissionv1.PatchType { pt := admissionv1.PatchTypeJSONPatch; return &pt }(),
+			UID:     types.UID(uid),
+			Allowed: true,
+			PatchType: func() *admissionv1.PatchType {
+				pt := admissionv1.PatchTypeJSONPatch
+				return &pt
+			}(),
+			Patch: patchJSON,
 		},
 	}
-
 }

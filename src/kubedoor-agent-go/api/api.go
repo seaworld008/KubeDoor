@@ -273,7 +273,9 @@ func ScaleDeployment(objDatas []config.BodyScaleRestartStruct, isAPI bool) (resp
 			}
 			errorList = append(errorList, errorDetail)
 		} else {
+
 			utils.Logger.Info("Successfully scaled deployment", zap.String("namespace", namespace), zap.String("deployment", deploymentName), zap.Int32("num", replaceNum))
+			utils.Logger.Info("如果开启管控模式，以数据库副本数为准")
 		}
 
 		if isAPI {
