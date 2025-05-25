@@ -120,7 +120,7 @@ const {
             v-model="queryForm.keyword"
             class="!w-[210px]"
             :placeholder="transformI18n('resource.keywordPlaceholder')"
-            @input="onKeywordChange"
+            @keyup.enter="onSearch"
           />
         </el-form-item>
         <el-form-item>

@@ -43,6 +43,7 @@
             v-model="searchForm.keyword"
             placeholder="请输入关键字"
             clearable
+            @keyup.enter="handleSearch"
           />
         </el-form-item>
 
@@ -91,6 +92,7 @@
           :data="filteredTableData"
           style="width: 100%"
           stripe
+          border
           :default-sort="{ prop: 'podCount', order: 'descending' }"
           row-key="id"
           :expand-row-keys="expandedRowKeys"
@@ -212,8 +214,9 @@
                   <el-table-column
                     prop="pod_ip"
                     label="Pod IP"
-                    min-width="110"
+                    min-width="120"
                     align="center"
+                    show-overflow-tooltip
                   />
                   <el-table-column
                     prop="cpu"
@@ -396,7 +399,7 @@
           <el-table-column
             prop="avgCpu"
             label="平均CPU"
-            min-width="100"
+            min-width="110"
             align="center"
             sortable
           >
@@ -405,7 +408,7 @@
           <el-table-column
             prop="maxCpu"
             label="最大CPU"
-            min-width="100"
+            min-width="110"
             align="center"
             sortable
           >
@@ -421,7 +424,7 @@
           <el-table-column
             prop="requestCpu"
             label="需求CPU"
-            min-width="100"
+            min-width="110"
             align="center"
             sortable
           >
@@ -430,7 +433,7 @@
           <el-table-column
             prop="limitCpu"
             label="限制CPU"
-            min-width="100"
+            min-width="110"
             align="center"
             sortable
           >
@@ -446,7 +449,7 @@
           <el-table-column
             prop="avgMem"
             label="平均MEM"
-            min-width="120"
+            min-width="110"
             align="center"
             sortable
           >
@@ -456,7 +459,7 @@
           <el-table-column
             prop="maxMem"
             label="最大MEM"
-            min-width="120"
+            min-width="110"
             align="center"
             sortable
           >
@@ -473,7 +476,7 @@
           <el-table-column
             prop="requestMem"
             label="需求MEM"
-            min-width="120"
+            min-width="110"
             align="center"
             sortable
           >
@@ -483,7 +486,7 @@
           <el-table-column
             prop="limitMem"
             label="限制MEM"
-            min-width="120"
+            min-width="110"
             align="center"
             sortable
           >
@@ -593,19 +596,20 @@ const nsOptions = ref<string[]>([]);
 
 // 表格数据
 const tableData = ref<any[]>([]);
-const filteredTableData = computed(() => {
-  if (!searchForm.keyword) {
-    return tableData.value;
-  }
+const filteredTableData = ref<any[]>([]);
+// const filteredTableData = computed(() => {
+//   if (!searchForm.keyword) {
+//     return tableData.value;
+//   }
 
-  const keyword = searchForm.keyword.toLowerCase();
-  return tableData.value.filter(
-    item =>
-      item.env.toLowerCase().includes(keyword) ||
-      (item.namespace && item.namespace.toLowerCase().includes(keyword)) ||
-      (item.deployment && item.deployment.toLowerCase().includes(keyword))
-  );
-});
+//   const keyword = searchForm.keyword.toLowerCase();
+//   return tableData.value.filter(
+//     item =>
+//       item.env.toLowerCase().includes(keyword) ||
+//       (item.namespace && item.namespace.toLowerCase().includes(keyword)) ||
+//       (item.deployment && item.deployment.toLowerCase().includes(keyword))
+//   );
+// });
 
 // 展开行相关
 const expandedRowKeys = ref<string[]>([]);
@@ -782,6 +786,19 @@ const handleSearch = async () => {
       });
     } else {
       tableData.value = [];
+    }
+
+    const keyword = searchForm.keyword.toLowerCase();
+
+    if (!searchForm.keyword) {
+      filteredTableData.value = tableData.value;
+    } else {
+      filteredTableData.value = tableData.value.filter(
+        item =>
+          item.env.toLowerCase().includes(keyword) ||
+          (item.namespace && item.namespace.toLowerCase().includes(keyword)) ||
+          (item.deployment && item.deployment.toLowerCase().includes(keyword))
+      );
     }
   } catch (error) {
     console.error("获取监控数据失败:", error);

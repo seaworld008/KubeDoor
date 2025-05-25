@@ -185,7 +185,20 @@ export function useResource() {
 
             console.log(res);
 
-            if ((res as any).message == "ok" || res == "ok") {
+            if (
+              res &&
+              (res as any).error_list &&
+              (res as any).error_list.length > 0
+            ) {
+              let errorMsg = "";
+              (res as any).error_list.forEach(err => {
+                errorMsg += `Namespace: ${err.namespace}, Deployment: ${err.deployment_name}, Reason: ${err.reason}<br/>`;
+              });
+              message(errorMsg, {
+                type: "error",
+                dangerouslyUseHTMLString: true
+              });
+            } else if ((res as any).message == "ok" || res == "ok") {
               message(transformI18n("resource.message.editSuccess"), {
                 type: "success"
               });

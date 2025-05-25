@@ -153,6 +153,18 @@ async def http_handler(request):
         node_cpu_list = await utils.get_node_cpu_per(query_params.get("env"))
         body[0]['node_cpu_list'] = node_cpu_list
 
+    # 固定节点均衡模式，增加节点微调能力
+    if path == "/api/balance_node":
+        source = body.get('source')
+        num = body.get('num')
+        type = body.get('type')
+        logger.info(body)
+
+        # 查询源节点所有deployment列表
+        deployment_list = utils.get_node_deployments(source, env)
+        top_deployments = utils.get_deployment_from_control_data(deployment_list, num, type, env)
+        body['top_deployments'] = top_deployments
+
     # 向目标客户端发送消息
     request_id = str(time.time())  # 使用时间戳作为唯一请求 ID
     message = {

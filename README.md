@@ -137,8 +137,8 @@
 #### 🛠快速安装
 ```
 ### 【下载helm包】
-wget https://StarsL.cn/kubedoor/kubedoor-1.3.0.tgz
-tar -zxvf kubedoor-1.3.0.tgz
+wget https://StarsL.cn/kubedoor/kubedoor-1.3.2.tgz
+tar -zxvf kubedoor-1.3.2.tgz
 cd kubedoor
 ### 【master端安装】
 # 编辑values-master.yaml文件，请仔细阅读注释，根据描述修改配置内容。
@@ -150,15 +150,15 @@ helm upgrade -i kubedoor . --namespace kubedoor --create-namespace --values valu
 # 编辑values-agent.yaml文件，请仔细阅读注释，根据描述修改配置内容。
 helm upgrade -i kubedoor-agent . --namespace kubedoor --create-namespace --values values-agent.yaml --set tsdb.external_labels_value=xxxxxxxx
 ```
-### ♻更新KubeDoor 1.3.0
-**♻[更新说明](https://github.com/CassInfra/KubeDoor/releases/tag/1.3.0)**
+### ♻更新KubeDoor 1.3.2
+**♻[更新说明](https://github.com/CassInfra/KubeDoor/releases/tag/1.3.2)**
 ```
 # 下载安装包
-wget https://StarsL.cn/kubedoor/kubedoor-1.3.0.tgz
-tar -zxvf kubedoor-1.3.0.tgz
+wget https://StarsL.cn/kubedoor/kubedoor-1.3.2.tgz
+tar -zxvf kubedoor-1.3.2.tgz
 ```
 ```
-# 旧版本更新到1.3.0需要新增2个数据库字段
+# 旧版本更新到1.3.0及以上版本需要新增2个数据库字段
 ALTER TABLE kubedoor.k8s_agent_status ADD COLUMN nms_not_confirm Bool DEFAULT false AFTER admission_namespace;
 ALTER TABLE kubedoor.k8s_agent_status ADD COLUMN scheduler Bool DEFAULT false AFTER nms_not_confirm;
 ```

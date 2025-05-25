@@ -343,9 +343,6 @@ async def get_pod_logs(env: str, ns: str, pod: str, lines: int = 100):
 
         # 获取pod日志
         logs = v1.read_namespaced_pod_log(name=pod, namespace=ns, tail_lines=lines, _request_timeout=30)
-
-        # 发送通知
-        send_md(f"已获取 {lines} 行日志", env, ns, pod)
         return {"message": logs, "success": True}
     except ApiException as e:
         logger.exception(f"获取Pod日志时出现异常: {e}")
